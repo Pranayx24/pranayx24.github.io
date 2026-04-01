@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with PDF AI Assistant – Online & Secure | PDFLuxe</title>
+    <meta name="description" content="Chat with your PDF documents using our advanced AI Assistant. Ask questions, generate summaries, and extract insights directly in your browser.">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --text-color: #ccc;
+            --gold: #f5d061;
+            --gold-gradient: linear-gradient(135deg, #f5c542, #d4af37);
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --border-color: rgba(255, 255, 255, 0.05);
+            --brand-dark: #0f172a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+
+        body {
+            background-color: var(--bg-color); color: var(--text-color); line-height: 1.8;
+            display: flex; flex-direction: column; min-height: 100vh;
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 5%; background: rgba(20, 25, 35, 0.6); backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .nav-brand { font-size: 1.5rem; font-weight: 700; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
+        .text-gold { color: var(--gold); }
+        .nav-links { display: flex; gap: 1.5rem; }
+        .nav-links a { color: var(--text-color); text-decoration: none; font-weight: 500; transition: color 0.3s; }
+        .nav-links a:hover { color: var(--gold); }
+        .badge { background: var(--gold-gradient); color: #000; font-size: 0.6rem; padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 700; vertical-align: top; margin-left: 2px; }
+
+        /* Main SEO Content */
+        .seo-container {
+            max-width: 900px; margin: 60px auto; padding: 50px;
+            background: var(--card-bg); border-radius: 16px;
+            box-shadow: 0 0 40px rgba(0,0,0,0.3);
+        }
+
+        h1 { font-size: 2.8rem; color: var(--gold); margin-bottom: 1.5rem; text-align: center; }
+        h2 { font-size: 1.8rem; color: var(--gold); margin-top: 3rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
+        p { font-size: 1.1rem; margin-bottom: 1.5rem; color: #e2e8f0; }
+
+        .features-list, .steps-list { list-style: none; margin: 1.5rem 0; }
+        .features-list li, .steps-list li { margin-bottom: 1rem; font-size: 1.1rem; display: flex; align-items: center; gap: 15px; }
+        .features-list i { color: var(--gold); font-size: 1.2rem; }
+        
+        .steps-list { counter-reset: step; }
+        .steps-list li { display: flex; align-items: center; }
+        .steps-badge { 
+            background: var(--gold-gradient); color: #000; font-weight: bold; 
+            min-width: 32px; height: 32px; display: inline-flex; justify-content: center; align-items: center; 
+            border-radius: 50%; 
+        }
+
+        /* CTA */
+        .cta-wrapper { text-align: center; margin-top: 4rem; }
+        .btn-primary {
+            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+            background: var(--gold-gradient); color: #000;
+            padding: 1rem 2.5rem; border-radius: 12px;
+            font-size: 1.25rem; font-weight: 700; text-decoration: none;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5); }
+
+        /* Footer */
+        .footer {
+            margin-top: auto; padding: 3rem 2rem 2rem;
+            background: var(--brand-dark); text-align: center; color: #fff;
+        }
+        .footer-links { margin-bottom: 1.5rem; }
+        .footer-links a { color: #cbd5e1; text-decoration: none; margin: 0 1rem; font-weight: 500; transition: color 0.3s; }
+        .footer-links a:hover { color: var(--gold); }
+        .copyright { color: #64748b; font-size: 0.9rem; margin-top: 1rem; }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .seo-container { margin: 20px; padding: 25px; }
+            h1 { font-size: 2rem; }
+            .btn-primary { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <header class="navbar">
+        <a href="index.html" class="nav-brand">
+            <i class="fa-solid fa-gem text-gold"></i>
+            <span>PDFLuxe</span>
+        </a>
+        <nav class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="merge-pdf.html">Merge</a>
+            <a href="split-pdf.html">Split</a>
+            <a href="compress-pdf.html">Compress</a>
+            <a href="index.html#ai-tools">AI <span class="badge">PRO</span></a>
+            <a href="index.html#home">More Tools</a>
+        </nav>
+    </header>
+
+    <!-- CONTENT -->
+    <main class="seo-container">
+        <h1>Chat with PDF AI Assistant</h1>
+        <p>Unlock the power of artificial intelligence to drastically boost your PDF productivity. PDFLuxe integrates an advanced AI Assistant that lets you digitally chat with any PDF document, automatically summarizing massive 50+ page legal documents, extracting complex data tables, and directly answering natural-language questions entirely based on the document's uploaded context!</p>
+        
+        <p>The time of endlessly scanning pages to find one single data point is officially over. Upload a document, ask a question exactly like you would to ChatGPT, and magically extract instant precise insights completely free.</p>
+
+        <h2>✨ Premium AI Features</h2>
+        <ul class="features-list">
+            <li><i class="fa-solid fa-check"></i> <strong>Natural Language interactions:</strong> Literally ask questions plainly to your document.</li>
+            <li><i class="fa-solid fa-check"></i> <strong>100% secure processing:</strong> We prioritize safe querying via high-grade AI APIs.</li>
+            <li><i class="fa-solid fa-check"></i> <strong>Automatic Summarization:</strong> Generate instant bullet-point thesis summaries.</li>
+            <li><i class="fa-solid fa-check"></i> <strong>Data Extraction:</strong> Isolate numerical tables flawlessly into structured format.</li>
+        </ul>
+
+        <h2>⚙️ How to <span class="text-gold">Chat with a PDF</span></h2>
+        <ul class="steps-list">
+            <li><span class="steps-badge">1</span> <strong>Upload document:</strong> Drop your complex PDF file securely into the chat portal.</li>
+            <li><span class="steps-badge">2</span> <strong>Ask Questions:</strong> Type literally anything you want to know about the text contents.</li>
+            <li><span class="steps-badge">3</span> <strong>Gain Insights:</strong> Receive an incredibly precise, context-aware answer instantly.</li>
+        </ul>
+
+        <h2>💎 Why choose PDFLuxe AI</h2>
+        <p>Unlike standard PDF editors that lack modern tooling, PDFLuxe provides a state-of-the-art AI architecture that heavily shifts manual reading work specifically into high-speed automation completely free. Enjoy unparalleled query accuracy, massive time savings, and an elegantly designed dashboard uniquely tailored to let you breeze through heavy document lifting seamlessly.</p>
+
+        <div class="cta-wrapper">
+            <a href="index.html#ai-tools" class="btn-primary">
+                Use this AI Tool now <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="index.html#about">About</a>
+            <a href="index.html#contact">Contact</a>
+            <a href="index.html#privacy">Privacy Policy</a>
+        </div>
+        <p class="copyright">Built by <strong>Yegireddy Pranay Kumar</strong></p>
+    </footer>
+
+</body>
+</html>
