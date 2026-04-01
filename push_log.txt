@@ -1,0 +1,21 @@
+git : error: src refspec 
+main does not match any
+At line:1 char:1
++ git push -u origin 
+main --force 2>&1 | 
+Out-File -FilePath 
+push_log.tx ...
++ ~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
+    + CategoryInfo       
+       : NotSpecified:   
+  (error: src refs...s   
+  not match any:Strin    
+g) [], RemoteExcepti    
+on
+    + FullyQualifiedErro 
+   rId : NativeCommandE  
+  rror
+ 
+error: failed to push 
+some refs to 'origin'
