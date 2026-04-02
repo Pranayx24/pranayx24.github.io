@@ -1,0 +1,39 @@
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   ai-pdf.html
+	modified:   compress-pdf.html
+	modified:   crop-pdf.html
+	modified:   image-to-pdf.html
+	modified:   merge-pdf.html
+	modified:   organize-pdf.html
+	modified:   page-numbers-pdf.html
+	modified:   pdf-to-image.html
+	modified:   pdf-to-text.html
+	modified:   pdf-to-word.html
+	modified:   protect-pdf.html
+	modified:   repair-pdf.html
+	modified:   rotate-pdf.html
+	modified:   scan-to-pdf.html
+	modified:   sign-pdf.html
+	modified:   split-pdf.html
+	modified:   unlock-pdf.html
+	modified:   watermark-pdf.html
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	git_status.txt
+	push_fix_spa.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+5a6580d Restore module export to theme.js to fix SPA home pages
+205fc57 Fix landing page theme logic and CSS styles
+e4b9f16 Fix landing page theme application and CSS styles
+0e0e591 Standardize all tool landing pages and unifying design system
+1b7bf45 Standardize all tool landing pages and unifying design system
+* main
+origin	https://github.com/Pranayx24/pranayx24.github.io (fetch)
+origin	https://github.com/Pranayx24/pranayx24.github.io (push)
