@@ -87,7 +87,9 @@ export function renderProtect(container) {
             passwordInput.value = '';
         } catch (error) {
             console.error(error);
-            window.showToast('Error protecting PDF.', 'error');
+            // Handle specific error messages from pdf-engine
+            const errorMsg = error.message || 'Error protecting PDF.';
+            window.showToast(errorMsg, 'error');
         } finally {
             btnProcess.innerHTML = originalText;
             btnProcess.disabled = false;

@@ -1,5 +1,9 @@
 const { PDFDocument } = PDFLib;
 
+// Resource URLs for dynamic importing
+const ENCRYPT_LIB_URL = 'https://cdn.jsdelivr.net/npm/@pdfsmaller/pdf-encrypt-lite/+esm';
+const DECRYPT_LIB_URL = 'https://cdn.jsdelivr.net/npm/@pdfsmaller/pdf-decrypt-lite/+esm';
+
 export async function mergePDFs(files) {
     const mergedPdf = await PDFDocument.create();
     
@@ -59,35 +63,72 @@ export async function splitPDF(file, rangesText) {
  * Protect PDF with a password
  */
 export async function protectPDF(file, userPassword, ownerPassword) {
-    const arrayBuffer = await file.arrayBuffer();
-    const pdf = await PDFDocument.load(arrayBuffer);
-    
-    pdf.encrypt({
-        userPassword,
-        ownerPassword: ownerPassword || userPassword, // default owner and user to same if not specified
-        permissions: {
-            printing: 'highResolution',
-            modifying: true,
-            copying: true,
-            annotating: true,
-            fillingForms: true,
-            contentAccessibility: true,
-            documentAssembly: true,
-        },
-    });
-    
-    return await pdf.save();
+    try {
+        // Load encryption library dynamically
+        let encryptPDF;
+        try {
+            const mod = await import(ENCRYPT_LIB_URL);
+            encryptPDF = mod.encryptPDF;
+        } catch (e) {
+            console.error("Failed to load PDF encrypt library:", e);
+            throw new Error("Unable to load the encryption engine. Please check your internet connection.");
+        }
+
+        const arrayBuffer = await file.arrayBuffer();
+        const pdfBytes = new Uint8Array(arrayBuffer);
+        
+        const protectedPdfBytes = await encryptPDF(
+            pdfBytes,
+            userPassword,
+            ownerPassword || userPassword
+        );
+        
+        return protectedPdfBytes;
+    } catch (error) {
+        console.error("Protect PDF error:", error);
+        if (error.message.includes("Unable to load")) throw error;
+        throw new Error("Encryption failed. This might be due to an unsupported PDF format.");
+    }
 }
 
 /**
  * Unlock a password-protected PDF
  */
 export async function unlockPDF(file, password) {
-    const arrayBuffer = await file.arrayBuffer();
-    const pdf = await PDFDocument.load(arrayBuffer, { password });
-    
-    // Saving it normally removes the encryption
-    return await pdf.save();
+    try {
+        // Load decryption library dynamically
+        let decryptPDF, isEncrypted;
+        try {
+            const mod = await import(DECRYPT_LIB_URL);
+            decryptPDF = mod.decryptPDF;
+            isEncrypted = mod.isEncrypted;
+        } catch (e) {
+            console.error("Failed to load PDF decrypt library:", e);
+            throw new Error("Unable to load the decryption engine. Please check your internet connection.");
+        }
+
+        const arrayBuffer = await file.arrayBuffer();
+        const pdfBytes = new Uint8Array(arrayBuffer);
+        
+        // Check if PDF is actually encrypted
+        const info = await isEncrypted(pdfBytes);
+        if (!info.encrypted) {
+            throw new Error("This PDF is not password-protected.");
+        }
+
+        const unlockedPdfBytes = await decryptPDF(pdfBytes, password);
+        return unlockedPdfBytes;
+    } catch (error) {
+        console.error("Unlock PDF error:", error);
+        if (error.message.includes("Unable to load")) throw error;
+        if (error.message.includes("Unsupported encryption")) {
+            throw new Error("This PDF uses an unsupported encryption format (AES-256). Only RC4 protected PDFs are supported for unlocking.");
+        }
+        if (error.message.includes("Incorrect password")) {
+            throw new Error("Invalid password. Please try again.");
+        }
+        throw error;
+    }
 }
 
 /**

@@ -51,6 +51,8 @@ export function renderUnlock(container) {
                 unlockForm.style.display = 'none';
                 fileInput.value = '';
             });
+        } else {
+            window.showToast('Invalid file. Please select a PDF.', 'error');
         }
     };
 
@@ -85,7 +87,9 @@ export function renderUnlock(container) {
             passwordInput.value = '';
         } catch (error) {
             console.error(error);
-            window.showToast('Incorrect password or invalid PDF.', 'error');
+            // Handle specific error messages from pdf-engine
+            const errorMsg = error.message || 'Incorrect password or invalid PDF.';
+            window.showToast(errorMsg, 'error');
         } finally {
             btnProcess.innerHTML = originalText;
             btnProcess.disabled = false;
