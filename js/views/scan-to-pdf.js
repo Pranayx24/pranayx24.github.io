@@ -1,234 +1,283 @@
-const { PDFDocument } = PDFLib;
-
 export function renderScanToPdf(container) {
+    // 1. Initial State & Tool Configuration
+    let stream = null;
+    let currentFacingMode = 'environment'; 
+    let capturedImages = [];
+    let isProcessing = false;
+
+    // 2. UI Template
     container.innerHTML = `
-        <div class="workspace">
-            <h2>Scan to PDF</h2>
-            <p style="opacity: 0.8; margin-top: 0.5rem;">Use your camera to scan documents and convert them to a PDF instantly.</p>
-            
-            <div class="camera-controls" style="margin-top: 2rem; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-                <button class="btn-primary" id="btn-start-camera" style="padding: 0.8rem 1.5rem;">
-                    <i class="fa-solid fa-camera"></i> Start Camera
-                </button>
-                <button class="btn-secondary" id="btn-switch-camera" style="padding: 0.8rem 1.5rem; display: none; background: rgba(255,255,255,0.1); color: #fff; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer;">
-                    <i class="fa-solid fa-camera-rotate"></i> Switch Camera
-                </button>
-                <button class="btn-secondary" id="btn-stop-camera" style="padding: 0.8rem 1.5rem; display: none; background: rgba(255,0,0,0.1); color: #ff6b6b; border: 1px solid rgba(255,0,0,0.3); border-radius: 8px; cursor: pointer;">
-                    <i class="fa-solid fa-video-slash"></i> Stop Camera
-                </button>
+        <div class="workspace-container">
+            <div class="workspace-header">
+                <div class="tool-badge"><i class="fa-solid fa-camera"></i> Scanner Online</div>
+                <h1>Scan to PDF</h1>
+                <p>Convert physical documents into digital PDFs effortlessly.</p>
             </div>
 
-            <div class="video-container" id="video-wrapper" style="margin-top: 20px; display: none; position: relative; max-width: 600px; margin-left: auto; margin-right: auto; background: #000; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid var(--border-color);">
-                <video id="camera-feed" autoplay playsinline style="width: 100%; height: auto; max-height: 70vh; display: block;"></video>
-                <button id="btn-capture" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 60px; height: 60px; border-radius: 50%; background: #fff; border: 4px solid var(--gold); cursor: pointer; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: transform 0.2s;">
-                    <div style="width: 44px; height: 44px; background: #fff; border-radius: 50%; border: 1px solid #ccc;"></div>
-                </button>
+            <div class="scan-workspace">
+                <!-- Camera Interface -->
+                <div class="camera-card glass-card">
+                    <div id="camera-placeholder" class="camera-placeholder">
+                        <i class="fa-solid fa-camera-retro"></i>
+                        <p>Camera access required to start scanning.</p>
+                        <button class="btn-primary" id="btn-start-camera">
+                            <i class="fa-solid fa-power-off"></i> Enable Camera
+                        </button>
+                    </div>
+
+                    <div id="video-wrapper" class="video-preview-wrapper" style="display: none;">
+                        <video id="camera-feed" autoplay playsinline></video>
+                        <div id="camera-flash" class="camera-flash"></div>
+                        
+                        <div class="camera-controls-overlay">
+                            <button id="btn-switch-camera" class="btn-icon-glass" title="Switch Camera" style="display:none;">
+                                <i class="fa-solid fa-camera-rotate"></i>
+                            </button>
+                            <button id="btn-capture" class="btn-capture-main">
+                                <div class="btn-capture-inner"></div>
+                            </button>
+                            <button id="btn-stop-camera" class="btn-icon-glass danger" title="Stop Camera">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Snapshot Canvas (Hidden) -->
+                <canvas id="snapshot-canvas" style="display: none;"></canvas>
+
+                <!-- Captured Section -->
+                <div id="captured-section" class="captured-section" style="display: none;">
+                    <div class="section-header">
+                        <h3>Scanned Pages (<span id="scan-count">0</span>)</h3>
+                        <button id="btn-clear-all" class="btn-text-only" style="color: #ff6b6b;">Clear All</button>
+                    </div>
+                    
+                    <div id="scan-list" class="scan-grid"></div>
+                    
+                    <button class="btn-primary btn-full-width" id="btn-process-scan">
+                        <i class="fa-solid fa-file-pdf"></i> Generate PDF Document
+                    </button>
+                </div>
             </div>
             
-            <canvas id="snapshot-canvas" style="display: none;"></canvas>
-
-            <div id="captured-section" style="margin-top: 30px; display: none;">
-                <h3>Captured Pages (<span id="scan-count">0</span>)</h3>
-                <div class="file-list" id="scan-list" style="display: flex; gap: 15px; margin-top: 15px; overflow-x: auto; padding-bottom: 10px;"></div>
-                
-                <button class="btn-primary" id="btn-process-scan" style="margin-top: 2rem; width: 100%;">
-                    <i class="fa-solid fa-file-pdf"></i> Create PDF Now
-                </button>
+            <div class="tool-info glass-card">
+                <div class="info-item">
+                    <i class="fa-solid fa-shield-halved text-gold"></i>
+                    <div>
+                        <h4>Private & Secure</h4>
+                        <p>Scanning happens locally on your device. No images are uploaded to any server.</p>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <style>
+            .workspace-container { max-width: 900px; margin: 0 auto; padding: 2rem 1rem; }
+            .workspace-header { text-align: center; margin-bottom: 2.5rem; }
+            .tool-badge { display: inline-block; padding: 0.4rem 1rem; background: rgba(212, 175, 55, 0.1); color: var(--gold); border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-bottom: 1rem; }
+            
+            .scan-workspace { display: flex; flex-direction: column; gap: 2rem; margin-bottom: 3rem; }
+            
+            .camera-card { position: relative; border-radius: 24px; overflow: hidden; background: #000; aspect-ratio: 4/3; max-width: 640px; margin: 0 auto; width: 100%; border: 1px solid var(--border-color); }
+            
+            .camera-placeholder { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #666; gap: 1.5rem; }
+            .camera-placeholder i { font-size: 4rem; opacity: 0.3; }
+            
+            .video-preview-wrapper { position: relative; height: 100%; width: 100%; }
+            #camera-feed { width: 100%; height: 100%; object-fit: cover; }
+            
+            .camera-flash { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 10; }
+            .camera-flash.active { animation: flashEffect 0.3s ease-out; }
+            
+            @keyframes flashEffect {
+                0% { opacity: 0.8; }
+                100% { opacity: 0; }
+            }
+            
+            .camera-controls-overlay { position: absolute; bottom: 1.5rem; left: 0; right: 0; display: flex; justify-content: center; align-items: center; gap: 2rem; z-index: 5; }
+            
+            .btn-capture-main { width: 70px; height: 70px; border-radius: 50%; background: #fff; border: 4px solid var(--gold); padding: 4px; cursor: pointer; transition: transform 0.2s; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+            .btn-capture-main:active { transform: scale(0.9); }
+            .btn-capture-inner { width: 100%; height: 100%; border-radius: 50%; background: #fff; border: 2px solid #ddd; }
+            
+            .btn-icon-glass { width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,0.15); backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); color: #fff; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; }
+            .btn-icon-glass.danger { background: rgba(255, 50, 50, 0.2); color: #ff6b6b; border-color: rgba(255, 50, 50, 0.3); }
+            
+            .captured-section { background: rgba(255,255,255,0.03); border-radius: 20px; padding: 1.5rem; border: 1px solid var(--border-color); }
+            .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+            
+            .scan-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 1rem; margin-bottom: 2rem; max-height: 400px; overflow-y: auto; padding-right: 5px; }
+            
+            .scan-item { position: relative; aspect-ratio: 2/3; border-radius: 12px; overflow: hidden; border: 2px solid var(--border-color); transition: border-color 0.2s; }
+            .scan-item img { width: 100%; height: 100%; object-fit: cover; }
+            .scan-item .delete-btn { position: absolute; top: 5px; right: 5px; width: 24px; height: 24px; background: rgba(255, 59, 48, 0.9); border: none; border-radius: 50%; color: #fff; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+            .scan-item .page-num { position: absolute; bottom: 5px; left: 5px; background: rgba(0,0,0,0.6); color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; }
+            
+            .tool-info { display: flex; flex-direction: column; gap: 1rem; padding: 1.5rem; }
+            .info-item { display: flex; gap: 1rem; align-items: flex-start; }
+            .info-item h4 { margin: 0; color: #fff; }
+            .info-item p { margin: 4px 0 0; font-size: 0.9rem; opacity: 0.7; }
+            
+            .btn-full-width { width: 100%; margin-top: 1rem; }
+        </style>
     `;
 
-    const videoElement = document.getElementById('camera-feed');
+    // 3. Selectors
     const btnStart = document.getElementById('btn-start-camera');
     const btnStop = document.getElementById('btn-stop-camera');
     const btnSwitch = document.getElementById('btn-switch-camera');
     const btnCapture = document.getElementById('btn-capture');
+    const btnProcess = document.getElementById('btn-process-scan');
+    const btnClear = document.getElementById('btn-clear-all');
+
+    const videoElement = document.getElementById('camera-feed');
+    const cameraPlaceholder = document.getElementById('camera-placeholder');
     const videoWrapper = document.getElementById('video-wrapper');
-    const canvas = document.getElementById('snapshot-canvas');
+    const cameraFlash = document.getElementById('camera-flash');
     
     const capturedSection = document.getElementById('captured-section');
     const scanList = document.getElementById('scan-list');
     const scanCount = document.getElementById('scan-count');
-    const btnProcess = document.getElementById('btn-process-scan');
+    const canvas = document.getElementById('snapshot-canvas');
 
-    let stream = null;
-    let currentFacingMode = 'environment'; // default to rear camera
-    let capturedImages = [];
-
-    // Helper to request camera access
-    const startCamera = async (facingMode) => {
-        if (stream) {
-            stopCamera();
+    // 4. Helper: Ensure PDFLib is loaded
+    const getPDFLib = () => {
+        const pLib = window.PDFLib || (typeof PDFLib !== 'undefined' ? PDFLib : null);
+        if (!pLib) {
+            window.showToast("PDF Lib not found. Please check internet connection.", "error");
+            return null;
         }
+        return pLib;
+    };
+
+    // 5. Camera Control Functions
+    const startCamera = async (facing) => {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            window.showToast("Your device/browser does not support camera access.", "error");
+            return;
+        }
+
+        if (stream) stopCamera();
+
         try {
             stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: facingMode }
+                video: { 
+                    facingMode: facing,
+                    width: { ideal: 1920 },
+                    height: { ideal: 1080 }
+                }
             });
+            
             videoElement.srcObject = stream;
-            
-            btnStart.style.display = 'none';
-            btnStop.style.display = 'inline-block';
-            btnSwitch.style.display = 'inline-block';
+            cameraPlaceholder.style.display = 'none';
             videoWrapper.style.display = 'block';
-            
-            // Check if multiple cameras are available to show/hide switch button
+
+            // Check if multiple cameras exist for Switch button
             const devices = await navigator.mediaDevices.enumerateDevices();
-            const videoInputs = devices.filter(device => device.kind === 'videoinput');
-            if (videoInputs.length <= 1) {
-                btnSwitch.style.display = 'none';
-            }
+            const inputs = devices.filter(d => d.kind === 'videoinput');
+            btnSwitch.style.display = inputs.length > 1 ? 'flex' : 'none';
+
         } catch (err) {
-            console.error("Error starting camera: ", err);
-            window.showToast("Could not access camera. Please check permissions.", "error");
+            console.error("Camera error:", err);
+            let msg = "Could not access camera.";
+            if (err.name === 'NotAllowedError') msg = "Camera access denied. Please enable in settings.";
+            window.showToast(msg, "error");
         }
     };
 
     const stopCamera = () => {
         if (stream) {
-            stream.getTracks().forEach(track => track.stop());
+            stream.getTracks().forEach(t => t.stop());
             stream = null;
             videoElement.srcObject = null;
         }
-        btnStart.style.display = 'inline-block';
-        btnStop.style.display = 'none';
-        btnSwitch.style.display = 'none';
+        cameraPlaceholder.style.display = 'flex';
         videoWrapper.style.display = 'none';
     };
 
-    // Clean up camera on view changing
-    const originalRouterHashChange = window.onhashchange;
-    const cleanup = () => {
-        stopCamera();
-        window.removeEventListener('hashchange', cleanup);
-    };
-    window.addEventListener('hashchange', cleanup);
-
-    // Add button heartbeat animation for UX
-    btnCapture.addEventListener('mousedown', () => {
-        btnCapture.style.transform = 'translateX(-50%) scale(0.9)';
-    });
-    btnCapture.addEventListener('mouseup', () => {
-        btnCapture.style.transform = 'translateX(-50%) scale(1)';
-    });
-    btnCapture.addEventListener('mouseleave', () => {
-        btnCapture.style.transform = 'translateX(-50%) scale(1)';
-    });
-
-    // UI Updates
-    const updateScannedList = () => {
+    // 6. UI Update Functions
+    const updateGallery = () => {
         scanList.innerHTML = '';
         scanCount.innerText = capturedImages.length;
-        
-        if (capturedImages.length > 0) {
-            capturedSection.style.display = 'block';
-            
-            capturedImages.forEach((imgSrc, index) => {
-                const item = document.createElement('div');
-                item.style.position = 'relative';
-                item.style.minWidth = '120px';
-                item.style.height = '160px';
-                item.style.borderRadius = '8px';
-                item.style.overflow = 'hidden';
-                item.style.border = '2px solid var(--border-color)';
-                
-                const img = document.createElement('img');
-                img.src = imgSrc;
-                img.style.width = '100%';
-                img.style.height = '100%';
-                img.style.objectFit = 'cover';
-                
-                const deleteBtn = document.createElement('button');
-                deleteBtn.innerHTML = '<i class="fa-solid fa-times"></i>';
-                deleteBtn.style.position = 'absolute';
-                deleteBtn.style.top = '5px';
-                deleteBtn.style.right = '5px';
-                deleteBtn.style.background = 'rgba(255, 0, 0, 0.8)';
-                deleteBtn.style.color = '#fff';
-                deleteBtn.style.border = 'none';
-                deleteBtn.style.borderRadius = '50%';
-                deleteBtn.style.width = '24px';
-                deleteBtn.style.height = '24px';
-                deleteBtn.style.cursor = 'pointer';
-                deleteBtn.style.display = 'flex';
-                deleteBtn.style.alignItems = 'center';
-                deleteBtn.style.justifyContent = 'center';
+        capturedSection.style.display = capturedImages.length > 0 ? 'block' : 'none';
 
-                deleteBtn.addEventListener('click', () => {
-                    capturedImages.splice(index, 1);
-                    updateScannedList();
-                });
-
-                item.appendChild(img);
-                item.appendChild(deleteBtn);
-                scanList.appendChild(item);
-            });
-        } else {
-            capturedSection.style.display = 'none';
-        }
+        capturedImages.forEach((imgSrc, index) => {
+            const div = document.createElement('div');
+            div.className = 'scan-item';
+            div.innerHTML = `
+                <img src="${imgSrc}" loading="lazy">
+                <span class="page-num">${index + 1}</span>
+                <button class="delete-btn" title="Delete Page"><i class="fa-solid fa-times"></i></button>
+            `;
+            div.querySelector('.delete-btn').onclick = () => {
+                capturedImages.splice(index, 1);
+                updateGallery();
+            };
+            scanList.appendChild(div);
+        });
     };
 
-    // Event Listeners
-    btnStart.addEventListener('click', () => startCamera(currentFacingMode));
-    btnStop.addEventListener('click', stopCamera);
-    btnSwitch.addEventListener('click', () => {
+    // 7. Event Listeners
+    btnStart.onclick = () => startCamera(currentFacingMode);
+    btnStop.onclick = stopCamera;
+    
+    btnSwitch.onclick = () => {
         currentFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
         startCamera(currentFacingMode);
-    });
+    };
 
-    btnCapture.addEventListener('click', () => {
+    btnCapture.onclick = () => {
         if (!stream) return;
-        
-        // Match canvas dimensions to video frame reality
+        if (videoElement.videoWidth === 0) {
+            window.showToast("Camera not ready.", "info");
+            return;
+        }
+
         canvas.width = videoElement.videoWidth;
         canvas.height = videoElement.videoHeight;
         
-        const context = canvas.getContext('2d');
-        context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
         
-        // Get high quality JPEG
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
         capturedImages.push(dataUrl);
-        updateScannedList();
         
-        // Quick visual flash feedback
-        const flash = document.createElement('div');
-        flash.style.position = 'absolute';
-        flash.style.top = 0; flash.style.left = 0; flash.style.right = 0; flash.style.bottom = 0;
-        flash.style.background = '#fff';
-        flash.style.opacity = 0.8;
-        flash.style.transition = 'opacity 0.2s';
-        videoWrapper.appendChild(flash);
-        setTimeout(() => flash.style.opacity = 0, 50);
-        setTimeout(() => flash.remove(), 250);
-    });
-
-    // Helper to fetch DataURL and convert to ArrayBuffer
-    const dataURLToArrayBuffer = (dataUrl) => {
-        const base64 = dataUrl.split(',')[1];
-        const binaryString = window.atob(base64);
-        const len = binaryString.length;
-        const bytes = new Uint8Array(len);
-        for (let i = 0; i < len; i++) {
-            bytes[i] = binaryString.charCodeAt(i);
-        }
-        return bytes.buffer;
+        // Visual Feedback (Flash)
+        cameraFlash.classList.add('active');
+        setTimeout(() => cameraFlash.classList.remove('active'), 300);
+        
+        updateGallery();
+        window.showToast("Captured page " + capturedImages.length, "success");
     };
 
-    btnProcess.addEventListener('click', async () => {
-        if (capturedImages.length === 0) return;
+    btnClear.onclick = () => {
+        if (confirm("Delete all captured pages?")) {
+            capturedImages = [];
+            updateGallery();
+        }
+    };
 
-        const originalText = btnProcess.innerHTML;
-        btnProcess.innerHTML = '<div class="loader"></div> Creating PDF...';
+    btnProcess.onclick = async () => {
+        if (capturedImages.length === 0 || isProcessing) return;
+        
+        const pLib = getPDFLib();
+        if (!pLib) return;
+
+        isProcessing = true;
+        const originalBtnText = btnProcess.innerHTML;
+        btnProcess.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
         btnProcess.disabled = true;
 
         try {
+            const { PDFDocument } = pLib;
             const pdfDoc = await PDFDocument.create();
-            
-            for (let imgSrc of capturedImages) {
-                const arrayBuffer = dataURLToArrayBuffer(imgSrc);
-                const image = await pdfDoc.embedJpg(arrayBuffer);
+
+            for (const dataUrl of capturedImages) {
+                const res = await fetch(dataUrl);
+                const arrayBuffer = await res.arrayBuffer();
                 
-                // Keep the page size matching the image dimensions
+                const image = await pdfDoc.embedJpg(arrayBuffer);
                 const page = pdfDoc.addPage([image.width, image.height]);
                 page.drawImage(image, {
                     x: 0,
@@ -237,21 +286,29 @@ export function renderScanToPdf(container) {
                     height: image.height,
                 });
             }
-            
+
             const pdfBytes = await pdfDoc.save();
             const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-            window.downloadBlob(blob, 'PDFLuxe_Scan.pdf');
-            window.showToast('Scanned PDF Created successfully!', 'success');
+            window.downloadBlob(blob, `PDFLuxe_Scan_${Date.now()}.pdf`);
             
-            // Allow resetting
+            window.showToast("PDF Created Successfully!", "success");
             capturedImages = [];
-            updateScannedList();
+            updateGallery();
+            stopCamera();
         } catch (error) {
-            console.error(error);
-            window.showToast('Error creating PDF from scans.', 'error');
+            console.error("PDF Processing Error:", error);
+            window.showToast("Error creating PDF. Please try again.", "error");
         } finally {
-            btnProcess.innerHTML = originalText;
+            isProcessing = false;
+            btnProcess.innerHTML = originalBtnText;
             btnProcess.disabled = false;
         }
-    });
+    };
+
+    // Cleanup when leaving view
+    const cleanup = () => {
+        stopCamera();
+        window.removeEventListener('hashchange', cleanup);
+    };
+    window.addEventListener('hashchange', cleanup);
 }

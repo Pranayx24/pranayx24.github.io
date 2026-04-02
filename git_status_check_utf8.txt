@@ -1,0 +1,25 @@
+﻿On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+	new file:   git_status.txt
+	modified:   js/main.js
+	modified:   js/views/scan-to-pdf.js
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   js/views/scan-to-pdf.js
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	git_status_check.txt
+	log.txt
+
+* main a3eed2c [origin/main] Feat: Add page range selection to PDF to Image tool
+* a3eed2c (HEAD -> main, origin/main) Feat: Add page range selection to PDF to Image tool
+* cb206af UI: Remove Upgrade button from 18 tool landing pages
+* 5a6580d Restore module export to theme.js to fix SPA home pages
+* 205fc57 Fix landing page theme logic and CSS styles
+* e4b9f16 Fix landing page theme application and CSS styles
