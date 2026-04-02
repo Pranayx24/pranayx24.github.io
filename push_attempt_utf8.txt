@@ -1,0 +1,23 @@
+﻿git : To https://github.c
+om/Pranayx24/pranayx24.gi
+thub.io
+At line:1 char:93
++ ... d unifying design 
+system" ; git push 
+origin main --force 2>&1 
+| Out-F ...
++                        
+         ~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
+    + CategoryInfo       
+       : NotSpecified:   
+  (To https://gith...a   
+ yx24.github.io:Strin    
+g) [], RemoteExcepti    
+on
+    + FullyQualifiedErro 
+   rId : NativeCommandE  
+  rror
+ 
+   1b7bf45..0e0e591  
+main -> main

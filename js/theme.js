@@ -17,19 +17,32 @@ export function initTheme() {
         icon.className = currentTheme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
     }
     
-    toggleBtn.addEventListener('click', () => {
+    // Remove existing listener to prevent duplicates
+    const newToggleBtn = toggleBtn.cloneNode(true);
+    toggleBtn.parentNode.replaceChild(newToggleBtn, toggleBtn);
+
+    newToggleBtn.addEventListener('click', () => {
         const theme = document.documentElement.getAttribute('data-theme');
         const newTheme = theme === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', newTheme);
         localStorage.setItem('theme', newTheme);
         
-        if (icon) {
-            icon.className = newTheme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        const newIcon = newToggleBtn.querySelector('i');
+        if (newIcon) {
+            newIcon.className = newTheme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
         }
     });
 }
 
-// Auto-initialize if not imported as a module (for simple script tags)
-if (document.currentScript && !document.currentScript.type) {
-    document.addEventListener('DOMContentLoaded', initTheme);
+// Auto-initialize on DOMContentLoaded regardless of script type
+if (typeof document !== 'undefined') {
+    // Initial call to set theme attribute immediately (prevents FOUC)
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initTheme);
+    } else {
+        initTheme();
+    }
 }
