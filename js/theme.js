@@ -3,7 +3,7 @@
  * Handles dark/light mode toggle and persistence
  */
 
-export function initTheme() {
+function initTheme() {
     const toggleBtn = document.getElementById('theme-toggle');
     if (!toggleBtn) return;
 
@@ -34,9 +34,8 @@ export function initTheme() {
     });
 }
 
-// Auto-initialize on DOMContentLoaded regardless of script type
-if (typeof document !== 'undefined') {
-    // Initial call to set theme attribute immediately (prevents FOUC)
+// Immediate execution for theme attribute (prevents flash)
+(function() {
     const savedTheme = localStorage.getItem('theme') || 'dark';
     document.documentElement.setAttribute('data-theme', savedTheme);
 
@@ -45,4 +44,4 @@ if (typeof document !== 'undefined') {
     } else {
         initTheme();
     }
-}
+})();
