@@ -1,0 +1,29 @@
+git : Pushing to https://
+github.com/Pranayx24/pran
+ayx24.github.io
+At line:1 char:1
++ git push -v origin 
+main --force 2>&1 | 
+Out-File -FilePath 
+verbose_pus ...
++ ~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
+    + CategoryInfo       
+       : NotSpecified:   
+  (Pushing to http...a   
+ yx24.github.io:Strin    
+g) [], RemoteExcepti    
+on
+    + FullyQualifiedErro 
+   rId : NativeCommandE  
+  rror
+ 
+To https://github.com/Pra
+nayx24/pranayx24.github.i
+o
+ = [up to date]      
+main -> main
+updating local tracking 
+ref 'refs/remotes/origin/
+main'
+Everything up-to-date

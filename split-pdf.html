@@ -1,155 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="icon" href="favicon.png">
+    <link rel="apple-touch-icon" href="favicon.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Split PDF Online Free – Secure & Fast | PDFLuxe</title>
-    <meta name="description" content="Split your PDF files into individual pages quickly and securely directly in your browser. 100% free with no file upload required.">
+    <meta name="description" content="Split your PDF files into individual pages or specific ranges quickly and securely directly in your browser. 100% free and fast.">
     
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <style>
-        :root {
-            --bg-color: #0b0f19;
-            --text-color: #ccc;
-            --gold: #f5d061;
-            --gold-gradient: linear-gradient(135deg, #f5c542, #d4af37);
-            --card-bg: rgba(255, 255, 255, 0.03);
-            --border-color: rgba(255, 255, 255, 0.05);
-            --brand-dark: #0f172a;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
-
-        body {
-            background-color: var(--bg-color); color: var(--text-color); line-height: 1.8;
-            display: flex; flex-direction: column; min-height: 100vh;
-        }
-
-        /* Navbar */
-        .navbar {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 1rem 5%; background: rgba(20, 25, 35, 0.6); backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border-color);
-        }
-        .nav-brand { font-size: 1.5rem; font-weight: 700; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
-        .text-gold { color: var(--gold); }
-        .nav-links { display: flex; gap: 1.5rem; }
-        .nav-links a { color: var(--text-color); text-decoration: none; font-weight: 500; transition: color 0.3s; }
-        .nav-links a:hover { color: var(--gold); }
-        
-        /* Main SEO Content */
-        .seo-container {
-            max-width: 900px; margin: 60px auto; padding: 50px;
-            background: var(--card-bg); border-radius: 16px;
-            box-shadow: 0 0 40px rgba(0,0,0,0.3);
-        }
-
-        h1 { font-size: 2.8rem; color: var(--gold); margin-bottom: 1.5rem; text-align: center; }
-        h2 { font-size: 1.8rem; color: var(--gold); margin-top: 3rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
-        p { font-size: 1.1rem; margin-bottom: 1.5rem; color: #e2e8f0; }
-
-        .features-list, .steps-list { list-style: none; margin: 1.5rem 0; }
-        .features-list li, .steps-list li { margin-bottom: 1rem; font-size: 1.1rem; display: flex; align-items: center; gap: 15px; }
-        .features-list i { color: var(--gold); font-size: 1.2rem; }
-        
-        .steps-list { counter-reset: step; }
-        .steps-list li { display: flex; align-items: center; }
-        .steps-badge { 
-            background: var(--gold-gradient); color: #000; font-weight: bold; 
-            min-width: 32px; height: 32px; display: inline-flex; justify-content: center; align-items: center; 
-            border-radius: 50%; 
-        }
-
-        /* CTA */
-        .cta-wrapper { text-align: center; margin-top: 4rem; }
-        .btn-primary {
-            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-            background: var(--gold-gradient); color: #000;
-            padding: 1rem 2.5rem; border-radius: 12px;
-            font-size: 1.25rem; font-weight: 700; text-decoration: none;
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5); }
-
-        /* Footer */
-        .footer {
-            margin-top: auto; padding: 3rem 2rem 2rem;
-            background: var(--brand-dark); text-align: center; color: #fff;
-        }
-        .footer-links { margin-bottom: 1.5rem; }
-        .footer-links a { color: #cbd5e1; text-decoration: none; margin: 0 1rem; font-weight: 500; transition: color 0.3s; }
-        .footer-links a:hover { color: var(--gold); }
-        .copyright { color: #64748b; font-size: 0.9rem; margin-top: 1rem; }
-
-        @media (max-width: 768px) {
-            .nav-links { display: none; }
-            .seo-container { margin: 20px; padding: 25px; }
-            h1 { font-size: 2rem; }
-            .btn-primary { width: 100%; }
-        }
-    </style>
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
     <!-- NAVBAR -->
-    <header class="navbar">
+    <nav class="navbar">
         <a href="index.html" class="nav-brand">
             <i class="fa-solid fa-gem text-gold"></i>
             <span>PDFLuxe</span>
         </a>
-        <nav class="nav-links">
-            <a href="index.html">Home</a>
-            <a href="merge-pdf.html">Merge</a>
-            <a href="split-pdf.html">Split</a>
-            <a href="compress-pdf.html">Compress</a>
-            <a href="index.html#home">More Tools</a>
-        </nav>
-    </header>
+
+        <div class="nav-links">
+            <a href="index.html#home">All Tools</a>
+            <a href="ai-pdf.html">AI Tools <span class="badge">PRO</span></a>
+            <a href="index.html#about">About</a>
+        </div>
+
+        <div class="nav-actions">
+            <button id="theme-toggle" class="btn-icon">
+                <i class="fa-solid fa-sun"></i>
+            </button>
+            <a href="index.html#upgrade" class="btn-pro" style="text-decoration: none;">Upgrade</a>
+        </div>
+    </nav>
 
     <!-- CONTENT -->
-    <main class="seo-container">
-        <h1>Split PDF Online Free</h1>
-        <p>Need to extract specific pages from a bulky document? PDFLuxe gives you a completely free, fast, and completely secure way to split PDFs directly inside your web browser. Skip the massive file uploads and handle your documents locally.</p>
-        
-        <p>Whether you need to pull out a single important page from an e-book or separate a massive contract into manageable pieces, PDFLuxe guarantees a perfectly clean and reliable splitting experience.</p>
+    <main class="seo-section">
+        <div class="seo-card">
+            <h1>Split PDF Online Free</h1>
+            <p>Need to extract specific pages from a large PDF document? PDFLuxe's split tool provides a simple, secure, and lightning-fast way to break down your PDF files into individual pages or customized ranges right in your browser. No registration required, just professional splitting results in seconds.</p>
+            
+            <p>Whether you're separating chapters of an eBook, extracting specific receipts from a monthly statement, or organizing legal exhibits, PDFLuxe guarantees the highest level of privacy and precision.</p>
 
-        <h2>✨ Premium Features</h2>
-        <ul class="features-list">
-            <li><i class="fa-solid fa-check"></i> <strong>No upload required:</strong> Complete privacy, your document never leaves your machine.</li>
-            <li><i class="fa-solid fa-check"></i> <strong>100% secure processing:</strong> We don't save or store your files.</li>
-            <li><i class="fa-solid fa-check"></i> <strong>Enterprise-grade speed:</strong> Process even 1,000+ page documents in seconds.</li>
-            <li><i class="fa-solid fa-check"></i> <strong>Works instantly in browser:</strong> Completely standalone and requires no software.</li>
-        </ul>
+            <h2>✨ Premium Features</h2>
+            <ul class="seo-list">
+                <li><i class="fa-solid fa-circle-check"></i> <div><strong>Extract precisely:</strong> Select individual pages or define custom ranges with ease.</div></li>
+                <li><i class="fa-solid fa-circle-check"></i> <div><strong>100% secure processing:</strong> Your files never leave your device – splitting happens locally.</div></li>
+                <li><i class="fa-solid fa-circle-check"></i> <div><strong>No upload waiting:</strong> Immediate processing thanks to advanced client-side technology.</div></li>
+                <li><i class="fa-solid fa-circle-check"></i> <div><strong>Works anywhere:</strong> Use it on any device with a modern web browser.</div></li>
+            </ul>
 
-        <h2>⚙️ How to <span class="text-gold">Split PDFs</span></h2>
-        <ul class="steps-list">
-            <li><span class="steps-badge">1</span> <strong>Upload files:</strong> Select your large PDF file from your device.</li>
-            <li><span class="steps-badge">2</span> <strong>Choose Extraction Type:</strong> Either extract all pages individually, or specify a custom page range (e.g., 2-5, 8).</li>
-            <li><span class="steps-badge">3</span> <strong>Download:</strong> Get a neatly packaged ZIP file containing your split pages.</li>
-        </ul>
+            <h2>⚙️ How to <span class="text-gold">Split PDFs</span></h2>
+            <div class="seo-steps">
+                <div class="step-item">
+                    <div class="step-number">1</div>
+                    <div><strong>Upload file:</strong> Select the PDF document you want to split.</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">2</div>
+                    <div><strong>Select Pages:</strong> Choose between splitting all pages or selecting a custom range.</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">3</div>
+                    <div><strong>Download:</strong> Instantly download your split files as a ZIP or individual PDFs.</div>
+                </div>
+            </div>
 
-        <h2>💎 Why choose PDFLuxe</h2>
-        <p>Unlike other PDF portals that force you to upload your sensitive documents to vulnerable remote servers, PDFLuxe processes everything completely on your own machine. This ensures unmatched security, zero wait times, and a completely ad-free user interface.</p>
+            <h2>💎 Why choose PDFLuxe</h2>
+            <p>Most online splitters require you to upload sensitive documents to their servers, posing significant privacy risks. PDFLuxe eliminates this by processing every page-split locally on your machine. Enjoy unmatched security, zero server queues, and a clean, ad-free interface designed for speed and reliability.</p>
 
-        <div class="cta-wrapper">
-            <a href="index.html#split" class="btn-primary">
-                Use this tool now <i class="fa-solid fa-arrow-right"></i>
-            </a>
+            <div style="text-align: center; margin-top: 3rem;">
+                <a href="index.html#split" class="btn-primary" style="text-decoration: none; display: inline-flex; width: auto; padding: 1rem 3rem;">
+                    Use Split Tool Now <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
         </div>
     </main>
 
     <!-- FOOTER -->
     <footer class="footer">
-        <div class="footer-links">
-            <a href="index.html#about">About</a>
-            <a href="index.html#contact">Contact</a>
-            <a href="index.html#privacy">Privacy Policy</a>
+        <div class="privacy-banner">
+            <i class="fa-solid fa-shield-halved"></i>
+            <p>Your files stay on your device. 100% secure. No uploads.</p>
         </div>
-        <p class="copyright">Built by <strong>Yegireddy Pranay Kumar</strong></p>
+
+        <div class="footer-links" style="display: flex; flex-direction: column; gap: 1.5rem; align-items: center;">
+            <div style="display: flex; flex-wrap: wrap; justify-content: center; max-width: 800px; gap: 0.5rem; row-gap: 1rem; font-size: 0.9rem; margin-bottom: 0.5rem;">
+                <a href="merge-pdf.html">Merge PDF</a> &bull;
+                <a href="split-pdf.html">Split PDF</a> &bull;
+                <a href="compress-pdf.html">Compress PDF</a> &bull;
+                <a href="pdf-to-image.html">PDF to Image</a> &bull;
+                <a href="image-to-pdf.html">Image to PDF</a> &bull;
+                <a href="scan-to-pdf.html">Scan to PDF</a> &bull;
+                <a href="rotate-pdf.html">Rotate PDF</a> &bull;
+                <a href="watermark-pdf.html">Watermark PDF</a> &bull;
+                <a href="pdf-to-word.html">PDF to Word</a> &bull;
+                <a href="protect-pdf.html">Protect PDF</a> &bull;
+                <a href="unlock-pdf.html">Unlock PDF</a> &bull;
+                <a href="page-numbers-pdf.html">Page Numbers</a> &bull;
+                <a href="organize-pdf.html">Organize PDF</a> &bull;
+                <a href="sign-pdf.html">Sign PDF</a> &bull;
+                <a href="repair-pdf.html">Repair PDF</a> &bull;
+                <a href="pdf-to-text.html">PDF to Text</a> &bull;
+                <a href="crop-pdf.html">Crop PDF</a> &bull;
+                <a href="ai-pdf.html">Chat with PDF</a>
+            </div>
+            <div>
+                <a href="index.html#about">About</a>
+                <a href="index.html#contact">Contact</a>
+                <a href="index.html#privacy">Privacy Policy</a>
+            </div>
+        </div>
+        <p>&copy; 2026 PDFLuxe. All rights reserved.</p>
     </footer>
 
+    <!-- Theme Script -->
+    <script src="js/theme.js" type="module"></script>
 </body>
 </html>

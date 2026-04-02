@@ -1,4 +1,5 @@
 import { renderHome } from './views/home.js';
+import { initTheme } from './theme.js';
 import { renderMerge } from './views/merge.js';
 import { renderSplit } from './views/split.js';
 import { renderAI } from './views/ai.js';
@@ -74,24 +75,7 @@ function router() {
     }, 150); // slight delay for smooth transition
 }
 
-// Global Theme Toggler
-function initTheme() {
-    const toggleBtn = document.getElementById('theme-toggle');
-    const icon = toggleBtn.querySelector('i');
-    
-    // Set initial theme based on localStorage, default to dark
-    const currentTheme = localStorage.getItem('theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', currentTheme);
-    icon.className = currentTheme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
-    
-    toggleBtn.addEventListener('click', () => {
-        const theme = document.documentElement.getAttribute('data-theme');
-        const newTheme = theme === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-        icon.className = newTheme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
-    });
-}
+// Global Theme initialized via imported initTheme
 
 // Global Toast System
 window.showToast = function(message, type = 'success') {

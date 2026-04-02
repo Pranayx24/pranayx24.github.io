@@ -1,0 +1,25 @@
+git : To https://github.c
+om/Pranayx24/pranayx24.gi
+thub.io
+At line:1 char:318
++ ... 
+x24/pranayx24.github.io; 
+git push -u origin main 
+--force 2>&1 | Out-F ...
++                        
+      ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
+    + CategoryInfo       
+       : NotSpecified:   
+  (To https://gith...a   
+ yx24.github.io:Strin    
+g) [], RemoteExcepti    
+on
+    + FullyQualifiedErro 
+   rId : NativeCommandE  
+  rror
+ 
+ + dcbc9a7...5febfd5 
+main -> main (forced 
+update)
+branch 'main' set up to track 'origin/main'.

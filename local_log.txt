@@ -1,0 +1,11 @@
+commit 5febfd5fc3acf678dfe04cebddd75000793c14fc
+Author: Pranayx24 <pranayyegireddy2004@gmail.com>
+Date:   Thu Apr 2 04:28:39 2026 +0530
+
+    Revert UI to light-mode, finalize SEO landing pages, and optimize PDF tool engine
+
+commit 0fa9af569cfda5bb414622cef11eb1b1868e2301
+Author: Pranay <pranayyegireddy2004@gmail.com>
+Date:   Thu Apr 2 04:14:39 2026 +0530
+
+    Revert UI to light-mode, finalize SEO landing pages, and optimize PDF tool engine

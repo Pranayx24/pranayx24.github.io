@@ -1,69 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="icon" href="favicon.png">
+    <link rel="apple-touch-icon" href="favicon.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unlock PDF Online – Remove PDF Password Securely | PDFLuxe</title>
-    <meta name="description" content="Remove passwords from your PDF files securely online. 100% client-side, no files are uploaded. Unlock your sensitive documents for free.">
+    <title>Unlock PDF – Remove Passwords Online | PDFLuxe</title>
+    <meta name="description" content="Remove passwords and unlock your PDF files instantly in your browser. Secure, fast, and free. Restore access to your documents with ease.">
     
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
     
-    <style>
-        :root { --bg-color: #020202; --text-color: #ccc; --gold: #d4af37; --card-bg: rgba(255, 255, 255, 0.03); }
-        body { background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
-        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 5%; background: rgba(18, 18, 18, 0.7); border-bottom: 1px solid rgba(255,255,255,0.05); position: sticky; top: 0; z-index: 100; }
-        .nav-brand { font-size: 1.5rem; font-weight: 700; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
-        .text-gold { color: var(--gold); }
-        .nav-links a { color: var(--text-color); text-decoration: none; font-weight: 500; margin-left: 1.5rem; transition: color 0.3s; }
-        .nav-links a:hover { color: var(--gold); }
-        .seo-container { max-width: 900px; margin: 60px auto; padding: 50px; background: var(--card-bg); border-radius: 20px; box-shadow: 0 0 50px rgba(0,0,0,0.5); line-height: 1.8; }
-        h1 { font-size: 2.8rem; color: var(--gold); margin-bottom: 1.5rem; text-align: center; }
-        h2 { font-size: 1.8rem; color: var(--gold); margin-top: 3rem; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem; }
-        p { font-size: 1.1rem; margin-bottom: 1.5rem; color: #e2e8f0; }
-        ul { list-style: none; padding: 0; }
-        li { margin-bottom: 1rem; font-size: 1.1rem; display: flex; align-items: center; gap: 15px; }
-        li i { color: var(--gold); font-size: 1.2rem; }
-        .cta-wrapper { text-align: center; margin-top: 4rem; }
-        .btn-primary { display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, var(--gold), #f9d976); color: #000; padding: 1rem 3rem; border-radius: 12px; font-size: 1.25rem; font-weight: 700; text-decoration: none; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3); transition: transform 0.2s, box-shadow 0.2s; }
-        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5); }
-        .footer { padding: 4rem 2rem; background: #050505; text-align: center; margin-top: 4rem; color: #666; }
-        @media (max-width: 768px) { h1 { font-size: 2rem; } .seo-container { margin: 20px; padding: 25px; } }
-    </style>
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <header class="navbar">
-        <a href="index.html" class="nav-brand"><i class="fa-solid fa-gem text-gold"></i><span>PDFLuxe</span></a>
-        <nav class="nav-links"><a href="index.html">Home</a><a href="index.html#home">More Tools</a></nav>
-    </header>
 
-    <main class="seo-container">
-        <h1>Unlock PDF Online - Remove Password Protection</h1>
-        <p>Removing passwords from your secure PDF files is simple and safe with PDFLuxe. Our premium "Unlock" tool processes your document completely client-side. Whether you've forgotten your own password on a file you created, or need to remove restrictions for easier editing, we ensure the fastest possible experience without uploading sensitive data.</p>
-        
-        <h2>🔓 Why PDFLuxe?</h2>
-        <ul>
-            <li><i class="fa-solid fa-unlock"></i> <strong>Zero Data Storage:</strong> We never see your password or your file. Everything stays on your machine.</li>
-            <li><i class="fa-solid fa-bolt"></i> <strong>Lightning Fast:</strong> Unlock in seconds with our optimized browser-based engine.</li>
-            <li><i class="fa-solid fa-mobile-screen"></i> <strong>Works Everywhere:</strong> No software to download. Works on mobile, tablet, and desktop.</li>
-            <li><i class="fa-solid fa-check-circle"></i> <strong>No Ads:</strong> Enjoy a clean, professional, and ad-free experience.</li>
-        </ul>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <a href="index.html" class="nav-brand">
+            <i class="fa-solid fa-gem text-gold"></i>
+            <span>PDFLuxe</span>
+        </a>
 
-        <h2>⚙️ How to <span class="text-gold">Remove PDF Security</span></h2>
-        <ul>
-            <li><i class="fa-solid fa-file-pdf"></i> Upload your protected PDF file.</li>
-            <li><i class="fa-solid fa-key"></i> Provide the password to decrypt the document.</li>
-            <li><i class="fa-solid fa-download"></i> Download the unlocked PDF immediately.</li>
-        </ul>
+        <div class="nav-links">
+            <a href="index.html#home">All Tools</a>
+            <a href="ai-pdf.html">AI Tools <span class="badge">PRO</span></a>
+            <a href="index.html#about">About</a>
+        </div>
 
-        <div class="cta-wrapper">
-            <a href="index.html#unlock" class="btn-primary">Unlock your PDF Now <i class="fa-solid fa-arrow-right"></i></a>
+        <div class="nav-actions">
+            <button id="theme-toggle" class="btn-icon">
+                <i class="fa-solid fa-sun"></i>
+            </button>
+            <a href="index.html#upgrade" class="btn-pro" style="text-decoration: none;">Upgrade</a>
+        </div>
+    </nav>
+
+    <!-- CONTENT -->
+    <main class="seo-section">
+        <div class="seo-card">
+            <h1>Unlock PDF – Restore Access Instantly</h1>
+            <p>Forgotten a password or need to remove restrictions from a secured PDF document? PDFLuxe's unlock tool provides a professional, free, and completely secure solution. Instantly remove passwords and restrictions directly in your browser. Our advanced security engine processes your files locally, ensuring that your confidential documents never touch a remote server.</p>
+            
+            <p>From regaining access to important legal documents and financial reports to removing restrictions for professional editing, PDFLuxe guarantees the highest level of privacy and reliability.</p>
+
+            <h2>✨ Premium Features</h2>
+            <ul class="seo-list">
+                <li><i class="fa-solid fa-circle-check"></i> <div><strong>Instant Removal:</strong> Clear passwords and restrictions in seconds.</div></li>
+                <li><i class="fa-solid fa-circle-check"></i> <div><strong>100% Private:</strong> Unlock happens locally – documents never touch a server.</div></li>
+                <li><i class="fa-solid fa-circle-check"></i> <div><strong>Bulk Unlocking:</strong> Restore access to multiple documents simultaneously.</div></li>
+                <li><i class="fa-solid fa-circle-check"></i> <div><strong>Fast Download:</strong> Professional-grade results with zero waiting time.</div></li>
+            </ul>
+
+            <h2>⚙️ How to <span class="text-gold">Unlock PDFs</span></h2>
+            <div class="seo-steps">
+                <div class="step-item">
+                    <div class="step-number">1</div>
+                    <div><strong>Upload PDF:</strong> Select the document you want to unlock.</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">2</div>
+                    <div><strong>Enter Password:</strong> Provide the current password to decrypt and unlock.</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">3</div>
+                    <div><strong>Download:</strong> Instantly download your new, unlocked PDF file.</div>
+                </div>
+            </div>
+
+            <h2>💎 Why choose PDFLuxe</h2>
+            <p>Most online "unlockers" pose significant privacy risks by uploading your sensitive files and passwords to vulnerable remote servers. PDFLuxe is different – we use modern browser technology to perform all decryption tasks locally. Enjoy 100% security, zero transfer delays, and a clean premium, ad-free interface designed for speed.</p>
+
+            <div style="text-align: center; margin-top: 3rem;">
+                <a href="index.html#unlock" class="btn-primary" style="text-decoration: none; display: inline-flex; width: auto; padding: 1rem 3rem;">
+                    Use Unlock Tool Now <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
         </div>
     </main>
 
+    <!-- FOOTER -->
     <footer class="footer">
-        <p>&copy; 2026 PDFLuxe. Created by <strong>Yegireddy Pranay Kumar</strong></p>
+        <div class="privacy-banner">
+            <i class="fa-solid fa-shield-halved"></i>
+            <p>Your files stay on your device. 100% secure. No uploads.</p>
+        </div>
+
+        <div class="footer-links" style="display: flex; flex-direction: column; gap: 1.5rem; align-items: center;">
+            <div style="display: flex; flex-wrap: wrap; justify-content: center; max-width: 800px; gap: 0.5rem; row-gap: 1rem; font-size: 0.9rem; margin-bottom: 0.5rem;">
+                <a href="merge-pdf.html">Merge PDF</a> &bull;
+                <a href="split-pdf.html">Split PDF</a> &bull;
+                <a href="compress-pdf.html">Compress PDF</a> &bull;
+                <a href="pdf-to-image.html">PDF to Image</a> &bull;
+                <a href="image-to-pdf.html">Image to PDF</a> &bull;
+                <a href="scan-to-pdf.html">Scan to PDF</a> &bull;
+                <a href="rotate-pdf.html">Rotate PDF</a> &bull;
+                <a href="watermark-pdf.html">Watermark PDF</a> &bull;
+                <a href="pdf-to-word.html">PDF to Word</a> &bull;
+                <a href="protect-pdf.html">Protect PDF</a> &bull;
+                <a href="unlock-pdf.html">Unlock PDF</a> &bull;
+                <a href="page-numbers-pdf.html">Page Numbers</a> &bull;
+                <a href="organize-pdf.html">Organize PDF</a> &bull;
+                <a href="sign-pdf.html">Sign PDF</a> &bull;
+                <a href="repair-pdf.html">Repair PDF</a> &bull;
+                <a href="pdf-to-text.html">PDF to Text</a> &bull;
+                <a href="crop-pdf.html">Crop PDF</a> &bull;
+                <a href="ai-pdf.html">Chat with PDF</a>
+            </div>
+            <div>
+                <a href="index.html#about">About</a>
+                <a href="index.html#contact">Contact</a>
+                <a href="index.html#privacy">Privacy Policy</a>
+            </div>
+        </div>
+        <p>&copy; 2026 PDFLuxe. All rights reserved.</p>
     </footer>
+
+    <!-- Theme Script -->
+    <script src="js/theme.js" type="module"></script>
 </body>
 </html>

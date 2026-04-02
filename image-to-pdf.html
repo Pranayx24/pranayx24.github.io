@@ -1,155 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="icon" href="favicon.png">
+    <link rel="apple-touch-icon" href="favicon.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image to PDF Converter Online – Free & Secure | PDFLuxe</title>
-    <meta name="description" content="Convert your JPG and PNG images into a single PDF document securely and for free directly in your browser. No photo uploading required.">
+    <title>Image to PDF Converter – JPG, PNG to PDF | PDFLuxe</title>
+    <meta name="description" content="Convert JPG, PNG, and other images to PDF high-quality documents instantly in your browser. 100% free, secure, and fast. No registration required.">
     
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <style>
-        :root {
-            --bg-color: #0b0f19;
-            --text-color: #ccc;
-            --gold: #f5d061;
-            --gold-gradient: linear-gradient(135deg, #f5c542, #d4af37);
-            --card-bg: rgba(255, 255, 255, 0.03);
-            --border-color: rgba(255, 255, 255, 0.05);
-            --brand-dark: #0f172a;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
-
-        body {
-            background-color: var(--bg-color); color: var(--text-color); line-height: 1.8;
-            display: flex; flex-direction: column; min-height: 100vh;
-        }
-
-        /* Navbar */
-        .navbar {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 1rem 5%; background: rgba(20, 25, 35, 0.6); backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border-color);
-        }
-        .nav-brand { font-size: 1.5rem; font-weight: 700; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
-        .text-gold { color: var(--gold); }
-        .nav-links { display: flex; gap: 1.5rem; }
-        .nav-links a { color: var(--text-color); text-decoration: none; font-weight: 500; transition: color 0.3s; }
-        .nav-links a:hover { color: var(--gold); }
-        
-        /* Main SEO Content */
-        .seo-container {
-            max-width: 900px; margin: 60px auto; padding: 50px;
-            background: var(--card-bg); border-radius: 16px;
-            box-shadow: 0 0 40px rgba(0,0,0,0.3);
-        }
-
-        h1 { font-size: 2.8rem; color: var(--gold); margin-bottom: 1.5rem; text-align: center; }
-        h2 { font-size: 1.8rem; color: var(--gold); margin-top: 3rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
-        p { font-size: 1.1rem; margin-bottom: 1.5rem; color: #e2e8f0; }
-
-        .features-list, .steps-list { list-style: none; margin: 1.5rem 0; }
-        .features-list li, .steps-list li { margin-bottom: 1rem; font-size: 1.1rem; display: flex; align-items: center; gap: 15px; }
-        .features-list i { color: var(--gold); font-size: 1.2rem; }
-        
-        .steps-list { counter-reset: step; }
-        .steps-list li { display: flex; align-items: center; }
-        .steps-badge { 
-            background: var(--gold-gradient); color: #000; font-weight: bold; 
-            min-width: 32px; height: 32px; display: inline-flex; justify-content: center; align-items: center; 
-            border-radius: 50%; 
-        }
-
-        /* CTA */
-        .cta-wrapper { text-align: center; margin-top: 4rem; }
-        .btn-primary {
-            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-            background: var(--gold-gradient); color: #000;
-            padding: 1rem 2.5rem; border-radius: 12px;
-            font-size: 1.25rem; font-weight: 700; text-decoration: none;
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5); }
-
-        /* Footer */
-        .footer {
-            margin-top: auto; padding: 3rem 2rem 2rem;
-            background: var(--brand-dark); text-align: center; color: #fff;
-        }
-        .footer-links { margin-bottom: 1.5rem; }
-        .footer-links a { color: #cbd5e1; text-decoration: none; margin: 0 1rem; font-weight: 500; transition: color 0.3s; }
-        .footer-links a:hover { color: var(--gold); }
-        .copyright { color: #64748b; font-size: 0.9rem; margin-top: 1rem; }
-
-        @media (max-width: 768px) {
-            .nav-links { display: none; }
-            .seo-container { margin: 20px; padding: 25px; }
-            h1 { font-size: 2rem; }
-            .btn-primary { width: 100%; }
-        }
-    </style>
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
     <!-- NAVBAR -->
-    <header class="navbar">
+    <nav class="navbar">
         <a href="index.html" class="nav-brand">
             <i class="fa-solid fa-gem text-gold"></i>
             <span>PDFLuxe</span>
         </a>
-        <nav class="nav-links">
-            <a href="index.html">Home</a>
-            <a href="merge-pdf.html">Merge</a>
-            <a href="split-pdf.html">Split</a>
-            <a href="compress-pdf.html">Compress</a>
-            <a href="index.html#home">More Tools</a>
-        </nav>
-    </header>
+
+        <div class="nav-links">
+            <a href="index.html#home">All Tools</a>
+            <a href="ai-pdf.html">AI Tools <span class="badge">PRO</span></a>
+            <a href="index.html#about">About</a>
+        </div>
+
+        <div class="nav-actions">
+            <button id="theme-toggle" class="btn-icon">
+                <i class="fa-solid fa-sun"></i>
+            </button>
+            <a href="index.html#upgrade" class="btn-pro" style="text-decoration: none;">Upgrade</a>
+        </div>
+    </nav>
 
     <!-- CONTENT -->
-    <main class="seo-container">
-        <h1>Image to PDF Converter Online</h1>
-        <p>Looking to combine your photos, scanned document pictures, or JPEG screenshots into a shareable universal PDF format? PDFLuxe gives you a completely free, lightning-fast, and secure way to convert Images to PDF natively inside your internet browser.</p>
-        
-        <p>Whether you're compiling receipts for expense reports or simply want to format your artwork into a professional portflolio doc, PDFLuxe guarantees perfectly aligned dimensions for all compiled images!</p>
+    <main class="seo-section">
+        <div class="seo-card">
+            <h1>Image to PDF Converter</h1>
+            <p>Need to compile your photos or scans into a single PDF document? PDFLuxe's Image to PDF converter provides a professional, free, and completely secure solution. Transform JPG, PNG, and BMP images into clean, formatted PDF files directly from your browser with zero data uploads.</p>
+            
+            <p>From organizing vacation photos and compiling receipts into expense reports to digitizing sketches and portfolios, PDFLuxe guarantees a high-fidelity conversion every time.</p>
 
-        <h2>✨ Premium Features</h2>
-        <ul class="features-list">
-            <li><i class="fa-solid fa-check"></i> <strong>No upload required:</strong> Complete photo privacy, your images are never stored.</li>
-            <li><i class="fa-solid fa-check"></i> <strong>100% secure processing:</strong> We don't save or transmit your pictures.</li>
-            <li><i class="fa-solid fa-check"></i> <strong>Optimized dimensions:</strong> Creates highly optimized A4 PDF outputs.</li>
-            <li><i class="fa-solid fa-check"></i> <strong>Works instantly in browser:</strong> Forget about downloading sketchy conversion tools.</li>
-        </ul>
+            <h2>✨ Premium Features</h2>
+            <ul class="seo-list">
+                <li><i class="fa-solid fa-circle-check"></i> <div><strong>Bulk Compilation:</strong> Combine hundreds of images into a single PDF with ease.</div></li>
+                <li><i class="fa-solid fa-circle-check"></i> <div><strong>100% Private:</strong> All rendering happens locally on your device – images never touch a server.</div></li>
+                <li><i class="fa-solid fa-circle-check"></i> <div><strong>Instant Download:</strong> Professional-grade PDF creation in seconds.</div></li>
+                <li><i class="fa-solid fa-circle-check"></i> <div><strong>High Quality:</strong> Our smart engine preserves the resolution of your original images.</div></li>
+            </ul>
 
-        <h2>⚙️ How to <span class="text-gold">Convert Images to PDF</span></h2>
-        <ul class="steps-list">
-            <li><span class="steps-badge">1</span> <strong>Upload photos:</strong> Select multiple JPG or PNG image files from your computer or phone.</li>
-            <li><span class="steps-badge">2</span> <strong>Sort order:</strong> Quickly drag to organize the images in the exact order you want them combined.</li>
-            <li><span class="steps-badge">3</span> <strong>Download:</strong> Click generate to instantly download your perfectly bound PDF file.</li>
-        </ul>
+            <h2>⚙️ How to <span class="text-gold">Convert Image to PDF</span></h2>
+            <div class="seo-steps">
+                <div class="step-item">
+                    <div class="step-number">1</div>
+                    <div><strong>Add Images:</strong> Select or drop JPG, PNG, or BMP files from your computer.</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">2</div>
+                    <div><strong>Sort & Arrange:</strong> Drag and drop the images into your desired page order.</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">3</div>
+                    <div><strong>Generate PDF:</strong> Click convert and instantly download your new PDF file.</div>
+                </div>
+            </div>
 
-        <h2>💎 Why choose PDFLuxe</h2>
-        <p>Unlike other image-to-PDF converters that secretly upload personal photographs to a remote cloud server to process them (putting privacy at risk), PDFLuxe converts completely natively entirely inside your browser tab! You get uncompromised local security, 100x faster generation speeds, and an ad-free workspace.</p>
+            <h2>💎 Why choose PDFLuxe</h2>
+            <p>While other converters force you to risk your privacy by uploading personal photos to cloud storage, PDFLuxe processes everything locally inside your browser. No registration, no ads, and total security. Experience a premium toolset designed to put your privacy first, regardless of how many files you convert.</p>
 
-        <div class="cta-wrapper">
-            <a href="index.html#img-to-pdf" class="btn-primary">
-                Use this tool now <i class="fa-solid fa-arrow-right"></i>
-            </a>
+            <div style="text-align: center; margin-top: 3rem;">
+                <a href="index.html#img-to-pdf" class="btn-primary" style="text-decoration: none; display: inline-flex; width: auto; padding: 1rem 3rem;">
+                    Use Image Tool Now <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
         </div>
     </main>
 
     <!-- FOOTER -->
     <footer class="footer">
-        <div class="footer-links">
-            <a href="index.html#about">About</a>
-            <a href="index.html#contact">Contact</a>
-            <a href="index.html#privacy">Privacy Policy</a>
+        <div class="privacy-banner">
+            <i class="fa-solid fa-shield-halved"></i>
+            <p>Your files stay on your device. 100% secure. No uploads.</p>
         </div>
-        <p class="copyright">Built by <strong>Yegireddy Pranay Kumar</strong></p>
+
+        <div class="footer-links" style="display: flex; flex-direction: column; gap: 1.5rem; align-items: center;">
+            <div style="display: flex; flex-wrap: wrap; justify-content: center; max-width: 800px; gap: 0.5rem; row-gap: 1rem; font-size: 0.9rem; margin-bottom: 0.5rem;">
+                <a href="merge-pdf.html">Merge PDF</a> &bull;
+                <a href="split-pdf.html">Split PDF</a> &bull;
+                <a href="compress-pdf.html">Compress PDF</a> &bull;
+                <a href="pdf-to-image.html">PDF to Image</a> &bull;
+                <a href="image-to-pdf.html">Image to PDF</a> &bull;
+                <a href="scan-to-pdf.html">Scan to PDF</a> &bull;
+                <a href="rotate-pdf.html">Rotate PDF</a> &bull;
+                <a href="watermark-pdf.html">Watermark PDF</a> &bull;
+                <a href="pdf-to-word.html">PDF to Word</a> &bull;
+                <a href="protect-pdf.html">Protect PDF</a> &bull;
+                <a href="unlock-pdf.html">Unlock PDF</a> &bull;
+                <a href="page-numbers-pdf.html">Page Numbers</a> &bull;
+                <a href="organize-pdf.html">Organize PDF</a> &bull;
+                <a href="sign-pdf.html">Sign PDF</a> &bull;
+                <a href="repair-pdf.html">Repair PDF</a> &bull;
+                <a href="pdf-to-text.html">PDF to Text</a> &bull;
+                <a href="crop-pdf.html">Crop PDF</a> &bull;
+                <a href="ai-pdf.html">Chat with PDF</a>
+            </div>
+            <div>
+                <a href="index.html#about">About</a>
+                <a href="index.html#contact">Contact</a>
+                <a href="index.html#privacy">Privacy Policy</a>
+            </div>
+        </div>
+        <p>&copy; 2026 PDFLuxe. All rights reserved.</p>
     </footer>
 
+    <!-- Theme Script -->
+    <script src="js/theme.js" type="module"></script>
 </body>
 </html>
