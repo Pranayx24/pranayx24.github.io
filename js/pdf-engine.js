@@ -3,10 +3,18 @@ export const getPDFLib = () => window.PDFLib || (typeof PDFLib !== 'undefined' ?
 export const getPDFJS = () => window.pdfjsLib || (typeof pdfjsLib !== 'undefined' ? pdfjsLib : null);
 
 
-// Resource URLs for dynamic importing - Using esm.sh for better availability and auto-bundling
-const ENCRYPT_LIB_URL = 'https://esm.sh/@pdfsmaller/pdf-encrypt-lite@1.0.2';
-const DECRYPT_LIB_URL = 'https://esm.sh/@pdfsmaller/pdf-decrypt-lite@1.0.2';
-const DECRYPT_LIB_FALLBACK = 'https://cdn.jsdelivr.net/npm/@pdfsmaller/pdf-decrypt-lite/+esm';
+// Resource URLs for dynamic importing - Multiple CDNs for maximum reliability
+const ENCRYPT_LIBS = [
+    'https://esm.sh/@pdfsmaller/pdf-encrypt-lite@1.0.2?bundle',
+    'https://cdn.jsdelivr.net/npm/@pdfsmaller/pdf-encrypt-lite@1.0.2/+esm',
+    'https://unpkg.com/@pdfsmaller/pdf-encrypt-lite@1.0.2/dist/index.mjs'
+];
+
+const DECRYPT_LIBS = [
+    'https://esm.sh/@pdfsmaller/pdf-decrypt-lite@1.0.2?bundle',
+    'https://cdn.jsdelivr.net/npm/@pdfsmaller/pdf-decrypt-lite@1.0.2/+esm',
+    'https://unpkg.com/@pdfsmaller/pdf-decrypt-lite@1.0.2/dist/index.mjs'
+];
 
 export async function mergePDFs(files) {
     const pLib = getPDFLib();
@@ -80,24 +88,27 @@ export async function protectPDF(file, userPassword, ownerPassword = null) {
         // Load encryption library dynamically via ESM
         let encryptPDF, isEncrypted;
         
-        try {
-            console.log("Initializing encryption engine...");
-            const mod = await import(ENCRYPT_LIB_URL);
-            
-            // Flexible extraction for various ESM build types
-            encryptPDF = mod.encryptPDF || (mod.default && mod.default.encryptPDF) || (typeof mod.default === 'function' ? mod.default : null);
-            isEncrypted = mod.isEncrypted || (mod.default && mod.default.isEncrypted);
-            
-            // Fallback for isEncrypted from decryption library if needed
-            if (!isEncrypted) {
-                try {
-                    const decryptMod = await import(DECRYPT_LIB_URL);
-                    isEncrypted = decryptMod.isEncrypted || (decryptMod.default && decryptMod.default.isEncrypted);
-                } catch(e) { /* ignore */ }
+        let lastError = null;
+        for (const url of ENCRYPT_LIBS) {
+            try {
+                console.log(`Trying to load encryption engine from: ${url}`);
+                const mod = await import(url);
+                encryptPDF = mod.encryptPDF || (mod.default && mod.default.encryptPDF) || (typeof mod.default === 'function' ? mod.default : null);
+                isEncrypted = mod.isEncrypted || (mod.default && mod.default.isEncrypted);
+                
+                if (encryptPDF) {
+                    console.log("Encryption engine loaded successfully.");
+                    break;
+                }
+            } catch (e) {
+                console.warn(`Failed to load from ${url}:`, e);
+                lastError = e;
             }
-        } catch (e) {
-            console.error("Encryption engine load failure:", e);
-            throw new Error("Unable to load the encryption engine. Please check your internet connection or disable ad-blockers that might block CDNs.");
+        }
+
+        if (!encryptPDF) {
+            console.error("All encryption CDNs failed.", lastError);
+            throw new Error(`Unable to load the encryption engine. ${lastError?.message || 'Check your internet or ad-blocker.'}`);
         }
 
         if (typeof encryptPDF !== 'function') {
@@ -165,31 +176,35 @@ export async function unlockPDF(file, password) {
 
         // Load decryption library dynamically
         let decryptPDF, isEncrypted;
-        try {
-            console.log("Loading decryption engine...");
-            // Try primary CDN
-            let mod;
+        let lastError = null;
+        
+        for (const url of DECRYPT_LIBS) {
             try {
-                mod = await import(DECRYPT_LIB_URL);
-            } catch (err) {
-                console.warn("Primary decryption CDN failed, trying fallback...", err);
-                mod = await import(DECRYPT_LIB_FALLBACK);
-            }
-
-            // Flexible extraction for various ESM build types
-            decryptPDF = mod.decryptPDF || (mod.default && mod.default.decryptPDF) || (typeof mod.default === 'function' ? mod.default : null);
-            isEncrypted = mod.isEncrypted || (mod.default && mod.default.isEncrypted);
-            
-            if (!decryptPDF) {
-                // One more check if it's nested
-                if (mod.default && mod.default.default) {
+                console.log(`Trying to load decryption engine from: ${url}`);
+                const mod = await import(url);
+                
+                // Flexible extraction for various ESM build types
+                decryptPDF = mod.decryptPDF || (mod.default && mod.default.decryptPDF) || (typeof mod.default === 'function' ? mod.default : null);
+                isEncrypted = mod.isEncrypted || (mod.default && mod.default.isEncrypted);
+                
+                if (!decryptPDF && mod.default && mod.default.default) {
                     decryptPDF = mod.default.default.decryptPDF || mod.default.default;
                     isEncrypted = isEncrypted || mod.default.default.isEncrypted;
                 }
+
+                if (decryptPDF) {
+                    console.log("Decryption engine loaded successfully.");
+                    break;
+                }
+            } catch (err) {
+                console.warn(`Failed to load from ${url}:`, err);
+                lastError = err;
             }
-        } catch (e) {
-            console.error("Failed to load PDF decrypt library:", e);
-            throw new Error("Unable to load the decryption engine. Please check your internet connection or disable ad-blockers.");
+        }
+
+        if (!decryptPDF) {
+            console.error("All decryption CDNs failed.", lastError);
+            throw new Error(`Connection Error: Unable to reach the security engine. Please try disabling your Ad-Blocker or use a different browser. (${lastError?.message || 'Library load failed'})`);
         }
 
         if (typeof decryptPDF !== 'function') {
