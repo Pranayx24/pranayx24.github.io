@@ -547,6 +547,11 @@ body {
     to { transform: rotate(360deg); }
 }
 
+/* Animation Utility Classes */
+.animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
+.animate-zoomIn { animation: zoomFadeIn 0.4s ease-out forwards; }
+.animate-slideUp { animation: slideUpFade 0.5s ease-out forwards; }
+
 /* Upgrade Modal */
 .modal-overlay {
     position: fixed;
