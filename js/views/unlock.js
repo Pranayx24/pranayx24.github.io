@@ -1,4 +1,4 @@
-import { unlockPDF } from '../pdf-engine.js?v=1.0.1';
+import { unlockPDF } from '../pdf-engine.js';
 
 /**
  * Renders the Unlock PDF view.
