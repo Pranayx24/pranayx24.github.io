@@ -187,7 +187,7 @@ export function renderProtect(container) {
 
     btnProcess.addEventListener('click', async () => {
         const password = passwordInput.value;
-        if (!password || password.length < 1) {
+        if (!password || password.length < 4) {
             if (window.showToast) window.showToast('Please enter a password longer than 3 characters.', 'error');
             return;
         }
