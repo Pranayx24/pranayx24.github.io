@@ -3,9 +3,9 @@ export const getPDFLib = () => window.PDFLib || (typeof PDFLib !== 'undefined' ?
 export const getPDFJS = () => window.pdfjsLib || (typeof pdfjsLib !== 'undefined' ? pdfjsLib : null);
 
 
-// Resource URLs for dynamic importing
-const ENCRYPT_LIB_URL = 'https://cdn.jsdelivr.net/npm/@pdfsmaller/pdf-encrypt-lite/+esm';
-const DECRYPT_LIB_URL = 'https://cdn.jsdelivr.net/npm/@pdfsmaller/pdf-decrypt-lite/+esm';
+// Resource URLs for dynamic importing - Using esm.sh for better availability and auto-bundling
+const ENCRYPT_LIB_URL = 'https://esm.sh/@pdfsmaller/pdf-encrypt-lite@1.0.2';
+const DECRYPT_LIB_URL = 'https://esm.sh/@pdfsmaller/pdf-decrypt-lite@1.0.2';
 
 export async function mergePDFs(files) {
     const pLib = getPDFLib();
