@@ -220,22 +220,23 @@ export function renderScanToPdf(container) {
             video.srcObject = stream;
             
             video.onloadedmetadata = () => {
-                console.log("Video metadata loaded.");
+                console.log(`Stream Ready: ${video.videoWidth}x${video.videoHeight}`);
                 placeholder.style.display = 'none';
                 scannerInterface.style.display = 'block';
                 galleryStage.style.display = 'none';
                 editStage.style.display = 'none';
                 
+                // Align internal canvas resolution to video stream resolution
                 overlay.width = video.videoWidth;
                 overlay.height = video.videoHeight;
                 
                 if (isCVReady) {
-                    console.log("Starting detection loop.");
+                    console.log("Ready to start Smart Detection Loop.");
                     startDetectionLoop();
                 } else {
-                    console.log("Starting basic mode (No CV).");
+                    console.log("Starting in manual-only camera mode.");
                     autoCaptureOption.style.display = 'none';
-                    window.showToast("Basic Mode: Capture manually.", "info");
+                    window.showToast("Manual Mode enabled.", "info");
                 }
             };
             
@@ -274,8 +275,8 @@ export function renderScanToPdf(container) {
         const cv = window.cv;
         detectionLoopActive = true;
         
-        // Detection is done on a small downsampled version to save CPU and battery
-        const DETECTION_WIDTH = 300; // Smaller is faster and often better for edges
+        // Dynamic detection resolution for balance between speed and quality
+        const DETECTION_WIDTH = 320;
         const ratio = video.videoWidth / DETECTION_WIDTH;
         const detHeight = video.videoHeight / ratio;
 
@@ -284,16 +285,15 @@ export function renderScanToPdf(container) {
         const gray = new cv.Mat();
         const blurred = new cv.Mat();
         const thresh = new cv.Mat();
-        const kernel = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(3, 3));
         const contours = new cv.MatVector();
         const hierarchy = new cv.Mat();
         const cap = new cv.VideoCapture(video);
 
-        console.log("High-Reliability Detection Loop Started.");
+        console.log("Aggressive Recognition Engine Started.");
 
         const processFrame = () => {
             if (!detectionLoopActive) {
-                srcFull.delete(); srcSmall.delete(); gray.delete(); blurred.delete(); thresh.delete(); contours.delete(); hierarchy.delete(); kernel.delete();
+                srcFull.delete(); srcSmall.delete(); gray.delete(); blurred.delete(); thresh.delete(); contours.delete(); hierarchy.delete();
                 return;
             }
 
@@ -301,35 +301,54 @@ export function renderScanToPdf(container) {
                 cap.read(srcFull);
                 cv.resize(srcFull, srcSmall, new cv.Size(DETECTION_WIDTH, detHeight), 0, 0, cv.INTER_AREA);
                 
-                // Classic Scanner Pipeline: Grayscale -> Blur -> Canny -> Dilate
+                // Extremely robust processing chain
                 cv.cvtColor(srcSmall, gray, cv.COLOR_RGBA2GRAY);
                 cv.GaussianBlur(gray, blurred, new cv.Size(5, 5), 0);
-                cv.Canny(blurred, thresh, 75, 200);
                 
-                // Dilate edges to close gaps (CRITICAL for reliability)
-                cv.dilate(thresh, thresh, kernel, new cv.Point(-1, -1), 1);
+                // Using Adaptive Thresholding + Canny for universal paper detection
+                cv.adaptiveThreshold(blurred, thresh, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 11, 2);
+                cv.Canny(thresh, thresh, 75, 200);
                 
-                // Find all shapes
+                // Slightly thicken edges so gaps are filled
+                let M = cv.Mat.ones(3, 3, cv.CV_8U);
+                cv.dilate(thresh, thresh, M);
+                M.delete();
+
                 cv.findContours(thresh, contours, hierarchy, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE);
                 
                 let maxArea = -1;
-                let bestContour = null;
+                let bestPoints = null;
 
                 for (let i = 0; i < contours.size(); ++i) {
                     let cnt = contours.get(i);
                     let area = cv.contourArea(cnt);
                     
-                    // Filter out noise early
-                    if (area < (DETECTION_WIDTH * detHeight * 0.05)) continue;
+                    // Paper should take at least 4% of the screen
+                    if (area < (DETECTION_WIDTH * detHeight * 0.04)) continue;
 
                     let peri = cv.arcLength(cnt, true);
                     let approx = new cv.Mat();
-                    cv.approxPolyDP(cnt, approx, 0.03 * peri, true);
+                    cv.approxPolyDP(cnt, approx, 0.02 * peri, true);
 
-                    // If it's a quad and larger than previous best
-                    if (approx.rows === 4 && area > maxArea) {
+                    // If it's a quad, it's perfect. If it's 5-6 points, we take it anyway and simplify
+                    if (approx.rows >= 4 && approx.rows <= 6 && area > maxArea) {
                         maxArea = area;
-                        bestContour = approx;
+                        
+                        // If it has more than 4 points, simplify it to 4 using a quad-fit
+                        if (approx.rows > 4) {
+                           let hull = new cv.Mat();
+                           cv.convexHull(approx, hull);
+                           let refined = new cv.Mat();
+                           cv.approxPolyDP(hull, refined, 0.05 * cv.arcLength(hull, true), true);
+                           if (refined.rows === 4) {
+                               bestPoints = refined;
+                           } else {
+                               refined.delete();
+                           }
+                           hull.delete();
+                        } else {
+                           bestPoints = approx;
+                        }
                     } else {
                         approx.delete();
                     }
@@ -338,12 +357,12 @@ export function renderScanToPdf(container) {
                 const ctx = overlay.getContext('2d');
                 ctx.clearRect(0, 0, overlay.width, overlay.height);
 
-                if (bestContour) {
+                if (bestPoints) {
                     const pts = [];
                     for (let i = 0; i < 4; i++) {
                         pts.push({ 
-                            x: bestContour.data32S[i * 2] * ratio, 
-                            y: bestContour.data32S[i * 2 + 1] * ratio 
+                            x: bestPoints.data32S[i * 2] * ratio, 
+                            y: bestPoints.data32S[i * 2 + 1] * ratio 
                         });
                     }
                     
@@ -358,7 +377,7 @@ export function renderScanToPdf(container) {
                              captureSnapshot();
                         }
                     }
-                    bestContour.delete();
+                    bestPoints.delete();
                 } else {
                     stabilityCounter = Math.max(0, stabilityCounter - 1);
                     if (lastStablePoints) {
@@ -370,7 +389,7 @@ export function renderScanToPdf(container) {
                     scannerAnimationFrame = requestAnimationFrame(processFrame);
                 }, 33); 
             } catch (e) {
-                console.warn("Detection Exception:", e);
+                console.warn("Aggr CV Exception:", e);
                 setTimeout(() => {
                     scannerAnimationFrame = requestAnimationFrame(processFrame);
                 }, 500);
