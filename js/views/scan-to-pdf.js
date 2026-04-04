@@ -7,16 +7,23 @@ import { getPDFLib } from '../pdf-engine.js';
 export function renderScanToPdf(container) {
     // 1. Initial State
     let stream = null;
-    let facingMode = 'environment';
-    let capturedPages = [];
-    let isCapturing = false;
-    let autoCaptureEnabled = true;
-    
-    // Detection & Processing State
     let detectionLoopActive = false;
-    let lastStablePoints = null;
+    let animationFrameId = null;
+    let facingMode = 'environment';
+    let autoCaptureEnabled = true;
     let stabilityCounter = 0;
-    const STABILITY_THRESHOLD = 20; // Approximately 1 second at ~20fps detection
+    const STABILITY_THRESHOLD = 30; // ~1.5 sec at 20fps
+    let lastStablePoints = null;
+    let isCapturing = false;
+    let cvLoaded = false;
+    
+    // Document Collection State
+    let scannedPages = [];
+    let currentEditIndex = -1;
+    let corners = [ {x:0,y:0}, {x:0,y:0}, {x:0,y:0}, {x:0,y:0} ];
+    let rawImageData = null;
+    let processedImageData = null;
+    let selectedFilter = 'original';
     
     // UI Elements
     container.innerHTML = `
@@ -158,13 +165,9 @@ export function renderScanToPdf(container) {
 
     let editContext = editCanvas.getContext('2d');
 
-    // 3. Document Detection State
-    let corners = [ {x:0,y:0}, {x:0,y:0}, {x:0,y:0}, {x:0,y:0} ];
-    let rawImageData = null;
-    let selectedFilter = 'original';
+    // 4. Utility: Wait for OpenCV to be ready with Graceful Degradation
 
     // 4. Utility: Wait for OpenCV to be ready with Graceful Degradation
-    let cvLoaded = false;
     const ensureCV = () => {
         return new Promise((resolve) => {
             if (window.cv && window.cv.Mat) {
