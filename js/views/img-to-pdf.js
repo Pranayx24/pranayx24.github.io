@@ -10,7 +10,7 @@ export function renderImgToPdf(container) {
             <div class="upload-area" id="i2p-upload">
                 <i class="fa-solid fa-file-image upload-icon"></i>
                 <h3>Drag & Drop Images here</h3>
-                <input type="file" id="i2p-file-input" multiple accept="image/png, image/jpeg" style="display: none;">
+                <input type="file" id="i2p-file-input" multiple accept="image/png, image/jpeg, image/jpg, image/webp" style="display: none;">
                 <button class="upload-btn" id="i2p-btn-select">Select Images</button>
             </div>
             
@@ -55,9 +55,11 @@ export function renderImgToPdf(container) {
     };
 
     const handleFiles = (files) => {
-        const validFiles = Array.from(files).filter(f => f.type === 'image/jpeg' || f.type === 'image/png');
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+        const validFiles = Array.from(files).filter(f => allowedTypes.includes(f.type) || f.name.toLowerCase().endsWith('.jpg'));
+        
         if (validFiles.length < files.length) {
-            window.showToast("Some files were rejected. Only JPG and PNG allowed.", "error");
+            window.showToast("Some files were rejected. Only JPG, PNG and WebP allowed.", "error");
         }
         selectedFiles = [...selectedFiles, ...validFiles];
         updateFileList();
@@ -79,9 +81,35 @@ export function renderImgToPdf(container) {
         handleFiles(e.dataTransfer.files);
     });
 
+    // Helper to convert image file to a format PDFLib can embed (normalized via Canvas)
+    const processImage = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    
+                    // We use JPEG for maximum compatibility and smaller PDF size
+                    canvas.toBlob((blob) => {
+                        blob.arrayBuffer().then(resolve).catch(reject);
+                    }, 'image/jpeg', 0.9);
+                };
+                img.onerror = () => reject(new Error(`Failed to load image: ${file.name}`));
+                img.src = e.target.result;
+            };
+            reader.onerror = () => reject(new Error(`Failed to read file: ${file.name}`));
+            reader.readAsDataURL(file);
+        });
+    };
+
     btnProcess.addEventListener('click', async () => {
         const originalText = btnProcess.innerHTML;
-        btnProcess.innerHTML = '<div class="loader"></div> Creating PDF...';
+        btnProcess.innerHTML = '<div class="loader"></div> Processing Images...';
         btnProcess.disabled = true;
 
         try {
@@ -91,25 +119,33 @@ export function renderImgToPdf(container) {
 
             const pdfDoc = await PDFDocument.create();
             
-            for (let file of selectedFiles) {
-                const arrayBuffer = await file.arrayBuffer();
-                let image;
-                if(file.type === 'image/jpeg') {
-                    image = await pdfDoc.embedJpg(arrayBuffer);
-                } else {
-                    image = await pdfDoc.embedPng(arrayBuffer);
-                }
+            for (let i = 0; i < selectedFiles.length; i++) {
+                const file = selectedFiles[i];
+                btnProcess.innerHTML = `<div class="loader"></div> Processing ${i+1}/${selectedFiles.length}...`;
                 
-                // Add page matching image dimensions
-                const page = pdfDoc.addPage([image.width, image.height]);
-                page.drawImage(image, {
-                    x: 0,
-                    y: 0,
-                    width: image.width,
-                    height: image.height,
-                });
+                try {
+                    const normalizedBuffer = await processImage(file);
+                    const image = await pdfDoc.embedJpg(normalizedBuffer);
+                    
+                    const page = pdfDoc.addPage([image.width, image.height]);
+                    page.drawImage(image, {
+                        x: 0,
+                        y: 0,
+                        width: image.width,
+                        height: image.height,
+                    });
+                } catch (imgError) {
+                    console.error(`Error processing ${file.name}:`, imgError);
+                    // Skip or keep going? Let's notify but continue if possible
+                    window.showToast(`Skipped ${file.name} due to an error.`, 'error');
+                }
             }
             
+            if (pdfDoc.getPageCount() === 0) {
+                throw new Error("No images were successfully processed.");
+            }
+
+            btnProcess.innerHTML = '<div class="loader"></div> Finalizing PDF...';
             const pdfBytes = await pdfDoc.save();
             const blob = new Blob([pdfBytes], { type: 'application/pdf' });
             window.downloadBlob(blob, 'PDFLuxe_Images.pdf');
@@ -119,7 +155,7 @@ export function renderImgToPdf(container) {
             updateFileList();
         } catch (error) {
             console.error(error);
-            window.showToast('Error converting images to PDF.', 'error');
+            window.showToast(error.message || 'Error converting images to PDF.', 'error');
         } finally {
             btnProcess.innerHTML = originalText;
             btnProcess.disabled = false;
