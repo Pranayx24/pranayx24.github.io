@@ -551,38 +551,35 @@ export function renderScanToPdf(container) {
         tempCanvas.getContext('2d').drawImage(video, 0, 0);
         rawImageData = tempCanvas;
 
-        stopScanner();
+        const vW = video.videoWidth;
+        const vH = video.videoHeight;
+        const cW = video.clientWidth;
+        const cH = video.clientHeight;
 
-        if (cvLoaded) {
-            // Map viewport points back to video resolution coordinates for warping
-            const videoViewAspect = video.clientWidth / video.clientHeight;
-            const videoSourceAspect = video.videoWidth / video.videoHeight;
-            let scaleFactor = 1, offsetX = 0, offsetY = 0;
+        // ACCURATE COORDINATE REVERSE-MAPPING
+        const vAspect = vW / vH;
+        const cAspect = cW / cH;
+        let s, ox = 0, oy = 0;
 
-            if (videoViewAspect > videoSourceAspect) {
-                scaleFactor = video.clientWidth / video.videoWidth;
-                offsetY = (video.videoHeight * scaleFactor - video.clientHeight) / 2;
-            } else {
-                scaleFactor = video.clientHeight / video.videoHeight;
-                offsetX = (video.videoWidth * scaleFactor - video.clientWidth) / 2;
-            }
-
-            if (lastStablePoints) {
-                corners = lastStablePoints.map(pt => ({
-                    x: (pt.x + offsetX) / scaleFactor,
-                    y: (pt.y + offsetY) / scaleFactor
-                }));
-            } else {
-                const w = video.videoWidth, h = video.videoHeight;
-                corners = [ {x:w*0.1,y:h*0.1}, {x:w*0.9,y:h*0.1}, {x:w*0.9,y:h*0.9}, {x:w*0.1,y:h*0.9} ];
-            }
-            showEditingStage();
+        if (cAspect > vAspect) {
+            s = cW / vW;
+            oy = (vH * s - cH) / 2;
         } else {
-            const finalImage = rawImageData.toDataURL('image/jpeg', 0.9);
-            capturedPages.push(finalImage);
-            showGallery();
+            s = cH / vH;
+            ox = (vW * s - cW) / 2;
         }
-        
+
+        if (lastStablePoints) {
+            corners = lastStablePoints.map(p => ({
+                x: (p.x + ox) / s,
+                y: (p.y + oy) / s
+            }));
+        } else {
+            corners = [ {x:vW*0.2,y:vH*0.2}, {x:vW*0.8,y:vH*0.2}, {x:vW*0.8,y:vH*0.8}, {x:vW*0.2,y:vH*0.8} ];
+        }
+
+        stopScanner();
+        showEditingStage();
         isCapturing = false;
     };
 
@@ -591,24 +588,31 @@ export function renderScanToPdf(container) {
         editStage.style.display = 'block';
         editCanvas.width = rawImageData.width;
         editCanvas.height = rawImageData.height;
-        drawEditScreen();
-        initCornerHandles();
+        
+        // Ensure handle container matches canvas display size
+        setTimeout(() => {
+            drawEditScreen();
+            initCornerHandles();
+        }, 100);
     };
 
     const drawEditScreen = () => {
-        editContext.clearRect(0,0,editCanvas.width, editCanvas.height);
-        editContext.drawImage(rawImageData, 0, 0);
-        editContext.beginPath();
-        editContext.moveTo(corners[0].x, corners[0].y);
-        editContext.lineTo(corners[1].x, corners[1].y);
-        editContext.lineTo(corners[2].x, corners[2].y);
-        editContext.lineTo(corners[3].x, corners[3].y);
-        editContext.closePath();
-        editContext.strokeStyle = '#d4af37';
-        editContext.lineWidth = 15;
-        editContext.stroke();
-        editContext.fillStyle = 'rgba(212, 175, 55, 0.2)';
-        editContext.fill();
+        const ctx = editContext;
+        ctx.clearRect(0,0,editCanvas.width, editCanvas.height);
+        ctx.drawImage(rawImageData, 0, 0);
+        
+        ctx.beginPath();
+        ctx.moveTo(corners[0].x, corners[0].y);
+        ctx.lineTo(corners[1].x, corners[1].y);
+        ctx.lineTo(corners[2].x, corners[2].y);
+        ctx.lineTo(corners[3].x, corners[3].y);
+        ctx.closePath();
+        
+        ctx.strokeStyle = '#d4af37';
+        ctx.lineWidth = Math.max(10, editCanvas.width / 100);
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(212, 175, 55, 0.2)';
+        ctx.fill();
     };
 
     const initCornerHandles = () => {
