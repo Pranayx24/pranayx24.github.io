@@ -165,42 +165,59 @@ export function renderScanToPdf(container) {
 
     // 4. Utility: Wait for OpenCV to be ready
     const ensureCV = () => {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             if (window.cv && window.cv.Mat) {
                 resolve(window.cv);
-            } else {
-                window.showToast("Initializing computer vision engine...", "info");
-                const interval = setInterval(() => {
-                    if (window.cv && window.cv.Mat) {
-                        clearInterval(interval);
-                        resolve(window.cv);
-                    }
-                }, 200);
+                return;
             }
+            
+            // Timeout after 15 seconds
+            const timeout = setTimeout(() => {
+                clearInterval(interval);
+                reject(new Error("Computer Vision engine taking too long to load. Please check your connection."));
+            }, 15000);
+
+            const interval = setInterval(() => {
+                if (window.cv && window.cv.Mat) {
+                    clearInterval(interval);
+                    clearTimeout(timeout);
+                    resolve(window.cv);
+                }
+            }, 100);
         });
     };
 
     // 5. Camera Management
     const startScanner = async () => {
+        const originalBtnText = btnInit.innerHTML;
+        btnInit.disabled = true;
+        btnInit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Initializing...';
+
         try {
             await ensureCV();
+            btnInit.innerHTML = '<i class="fa-solid fa-camera"></i> Starting Camera...';
+            
             stream = await navigator.mediaDevices.getUserMedia({
                 video: { facingMode: facingMode, width: { ideal: 1920 }, height: { ideal: 1080 } }
             });
             video.srcObject = stream;
-            placeholder.style.display = 'none';
-            scannerInterface.style.display = 'block';
-            galleryStage.style.display = 'none';
-            editStage.style.display = 'none';
             
+            // Wait for video to be ready before showing interface
             video.onloadedmetadata = () => {
+                placeholder.style.display = 'none';
+                scannerInterface.style.display = 'block';
+                galleryStage.style.display = 'none';
+                editStage.style.display = 'none';
+                
                 overlay.width = video.videoWidth;
                 overlay.height = video.videoHeight;
                 startDetectionLoop();
             };
         } catch (err) {
             console.error(err);
-            window.showToast("Camera access denied or unsupported.", "error");
+            window.showToast(err.message || "Camera access denied or unsupported.", "error");
+            btnInit.disabled = false;
+            btnInit.innerHTML = originalBtnText;
         }
     };
 
