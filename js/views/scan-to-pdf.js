@@ -5,10 +5,9 @@ import { getPDFLib } from '../pdf-engine.js';
  * Implements Adobe Scan-like features: Auto-detect, Auto-crop, Perspective adjustment, and Filters.
  */
 export function renderScanToPdf(container) {
-    // 1. Initial State
     let stream = null;
     let detectionLoopActive = false;
-    let animationFrameId = null;
+    let scannerAnimationFrame = null;
     let facingMode = 'environment';
     let autoCaptureEnabled = true;
     let stabilityCounter = 0;
@@ -261,7 +260,7 @@ export function renderScanToPdf(container) {
 
     const stopScanner = () => {
         detectionLoopActive = false;
-        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        if (scannerAnimationFrame) cancelAnimationFrame(scannerAnimationFrame);
         if (stream) {
             stream.getTracks().forEach(t => t.stop());
             stream = null;
@@ -362,12 +361,12 @@ export function renderScanToPdf(container) {
 
                 // Throttle to ~20FPS to prevent CPU overheating
                 setTimeout(() => {
-                    animationFrameId = requestAnimationFrame(processFrame);
+                    scannerAnimationFrame = requestAnimationFrame(processFrame);
                 }, 30); 
             } catch (e) {
                 console.warn("Detection error:", e);
                 setTimeout(() => {
-                    animationFrameId = requestAnimationFrame(processFrame);
+                    scannerAnimationFrame = requestAnimationFrame(processFrame);
                 }, 500); // Wait longer on error
             }
         };
