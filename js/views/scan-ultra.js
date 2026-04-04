@@ -205,40 +205,11 @@ export function renderScanToPdf(container) {
 
         try {
             console.log("Starting scanner initialization...");
-            
-            // 1. ATTEMPT HIGH-RES CAMERA ACCESS WITH FALLBACKS
-            const getCamera = async (mode) => {
-                const configs = [
-                    { video: { facingMode: mode, width: { ideal: 1920 }, height: { ideal: 1080 } } },
-                    { video: { facingMode: mode, width: { ideal: 1280 }, height: { ideal: 720 } } },
-                    { video: { width: { ideal: 1280 }, height: { ideal: 720 } } }, // Universal fallback
-                    { video: true } // Absolute fallback
-                ];
-                
-                for (const config of configs) {
-                    try {
-                        console.log("Trying camera config:", config);
-                        return await navigator.mediaDevices.getUserMedia(config);
-                    } catch (e) {
-                        console.warn("Config failed:", config, e.name);
-                    }
-                }
-                throw new Error("No camera accessible.");
-            };
 
-            stream = await getCamera(facingMode);
-            video.srcObject = stream;
-            
-            // Critical for iOS/Safari
-            video.setAttribute('autoplay', '');
-            video.setAttribute('muted', '');
-            video.setAttribute('playsinline', '');
-            video.muted = true;
-            
-            await video.play().catch(e => console.warn("Video play error:", e));
-
-            // Initializing sequence
+            // Initializing sequence logic
             const onCameraReady = async () => {
+                if (scannerInterface.style.display !== 'none') return; // Prevent double trigger
+                
                 const checkDimensions = async () => {
                     if (video.videoWidth > 0 && video.videoHeight > 0) {
                         console.log(`Stream Dimensions Valid: ${video.videoWidth}x${video.videoHeight}`);
@@ -274,8 +245,47 @@ export function renderScanToPdf(container) {
                 checkDimensions();
             };
 
+            // 1. ATTACH LISTENERS FIRST (Prevents race condition)
             video.onloadedmetadata = onCameraReady;
-            video.onloadeddata = onCameraReady; // redundancy for mobile/erratic events
+            video.onloadeddata = onCameraReady;
+
+            // 2. ATTEMPT HIGH-RES CAMERA ACCESS WITH FALLBACKS
+            const getCamera = async (mode) => {
+                const configs = [
+                    { video: { facingMode: mode, width: { ideal: 1920 }, height: { ideal: 1080 } } },
+                    { video: { facingMode: mode, width: { ideal: 1280 }, height: { ideal: 720 } } },
+                    { video: { width: { ideal: 1280 }, height: { ideal: 720 } } }, // Universal fallback
+                    { video: true } // Absolute fallback
+                ];
+                
+                for (const config of configs) {
+                    try {
+                        console.log("Trying camera config:", config);
+                        return await navigator.mediaDevices.getUserMedia(config);
+                    } catch (e) {
+                        console.warn("Config failed:", config, e.name);
+                    }
+                }
+                throw new Error("No camera accessible.");
+            };
+
+            stream = await getCamera(facingMode);
+            video.srcObject = stream;
+            
+            // Critical for iOS/Safari
+            video.setAttribute('autoplay', '');
+            video.setAttribute('muted', '');
+            video.setAttribute('playsinline', '');
+            video.muted = true;
+            
+            await video.play().catch(e => console.warn("Video play error:", e));
+
+            // Manual check in case events didn't fire despite being ready
+            setTimeout(() => {
+                if (video.readyState >= 1 && scannerInterface.style.display === 'none') {
+                    onCameraReady();
+                }
+            }, 1000);
 
         } catch (err) {
             console.error("Scanner Error:", err);
