@@ -17,12 +17,13 @@ export function renderScanToPdf(container) {
     let cvLoaded = false;
     
     // Document Collection State
-    let scannedPages = [];
+    let capturedPages = [];
     let currentEditIndex = -1;
     let corners = [ {x:0,y:0}, {x:0,y:0}, {x:0,y:0}, {x:0,y:0} ];
     let rawImageData = null;
     let processedImageData = null;
     let selectedFilter = 'original';
+    let processing = false;
     
     // UI Elements
     container.innerHTML = `
@@ -41,13 +42,13 @@ export function renderScanToPdf(container) {
                 </div>
 
                 <div id="scanner-interface" style="display: none; position: relative; width: 100%; height: 100%; overflow: hidden; border-radius: 20px;">
-                    <video id="scan-video" autoplay playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
-                    <canvas id="overlay-canvas" style="position: absolute; top:0; left:0; width: 100%; height: 100%; pointer-events: none;"></canvas>
+                    <video id="scan-video" autoplay playsinline muted style="width: 100%; height: 100%; object-fit: cover;"></video>
+                    <canvas id="overlay-canvas" style="position: absolute; top:0; left:0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; z-index: 10;"></canvas>
                     
                     <!-- HUD Overlay -->
-                    <div id="scan-hud" style="position: absolute; top: 1.5rem; left: 1.5rem; right: 1.5rem; display: flex; justify-content: space-between; align-items: start; pointer-events: none;">
+                    <div id="scan-hud" style="position: absolute; top: 1.5rem; left: 1.5rem; right: 1.5rem; display: flex; justify-content: space-between; align-items: start; pointer-events: none; z-index: 20;">
                         <div class="badge-glass" id="auto-scan-status">
-                            <i class="fa-solid fa-magic-wand-sparkles"></i> Auto-Detecting...
+                            <i class="fa-solid fa-spinner fa-spin"></i> Initializing Engine...
                         </div>
                         <div id="scan-count-badge" class="badge-gold" style="display: none;">0 Pages</div>
                     </div>
@@ -206,18 +207,19 @@ export function renderScanToPdf(container) {
             console.log("Starting scanner initialization...");
             const isCVReady = await ensureCV();
             
-            btnInit.innerHTML = '<i class="fa-solid fa-camera"></i> Starting Camera...';
-            
             const constraints = {
                 video: { 
                     facingMode: facingMode, 
-                    width: { ideal: 1280 }, // Lowering ideal slightly for better compatibility
-                    height: { ideal: 720 } 
+                    width: { ideal: 1920 }, // High-res for maximum accuracy
+                    height: { ideal: 1080 } 
                 }
             };
 
             stream = await navigator.mediaDevices.getUserMedia(constraints);
             video.srcObject = stream;
+            
+            // Explicitly call play for broader device support
+            await video.play().catch(e => console.warn("Video play error:", e));
             
             video.onloadedmetadata = () => {
                 // Ensure we have valid dimensions before starting CV
@@ -237,8 +239,10 @@ export function renderScanToPdf(container) {
                             if (statusBadge) statusBadge.innerHTML = '<i class="fa-solid fa-microchip"></i> Engine Ready';
                             startDetectionLoop();
                         } else {
-                            autoCaptureOption.style.display = 'none';
-                            window.showToast("Smart detection engine skipped. Manual mode only.", "info");
+                            btnAuto.style.display = 'none';
+                            const statusBadge = document.getElementById('auto-scan-status');
+                            if (statusBadge) statusBadge.innerHTML = '<i class="fa-solid fa-hand-pointer"></i> Manual Mode';
+                            window.showToast("Manual mode activated.", "info");
                         }
                     } else {
                         console.warn("Waiting for video dimensions...");
@@ -420,6 +424,7 @@ export function renderScanToPdf(container) {
     };
 
     const drawOverlay = (ctx, pts, active) => {
+        ctx.save();
         ctx.beginPath();
         ctx.moveTo(pts[0].x, pts[0].y);
         ctx.lineTo(pts[1].x, pts[1].y);
@@ -427,12 +432,38 @@ export function renderScanToPdf(container) {
         ctx.lineTo(pts[3].x, pts[3].y);
         ctx.closePath();
         
-        const opacity = active ? 0.6 : 0.2;
-        ctx.strokeStyle = active ? '#d4af37' : '#ffffff';
-        ctx.lineWidth = 8;
+        const mainColor = active ? '#d4af37' : '#ffffff';
+        const glowColor = active ? 'rgba(212, 175, 55, 0.4)' : 'rgba(255, 255, 255, 0.2)';
+
+        // Outer Glow
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = mainColor;
+        ctx.strokeStyle = mainColor;
+        ctx.lineWidth = 10;
         ctx.stroke();
-        ctx.fillStyle = `rgba(212, 175, 55, ${opacity * 0.3})`;
+
+        // Inner translucent fill
+        ctx.fillStyle = glowColor;
         ctx.fill();
+
+        // Animated "Scan Line" if active
+        if (active) {
+            const time = Date.now() / 1000;
+            const scanY = (Math.sin(time * 3) + 1) / 2; // oscillates 0 to 1
+            const minX = Math.min(pts[0].x, pts[3].x);
+            const maxX = Math.max(pts[1].x, pts[2].x);
+            const minY = Math.min(pts[0].y, pts[1].y);
+            const maxY = Math.max(pts[2].y, pts[3].y);
+            const currentY = minY + (maxY - minY) * scanY;
+            
+            ctx.beginPath();
+            ctx.moveTo(minX, currentY);
+            ctx.lineTo(maxX, currentY);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+        }
+        ctx.restore();
     };
 
     // 7. Capture & Adjustment Logic
@@ -471,7 +502,7 @@ export function renderScanToPdf(container) {
             // Fallback: Skip editing/warping and add directly to gallery
             console.log("Adding image directly (Basic Mode)");
             const finalImage = rawImageData.toDataURL('image/jpeg', 0.9);
-            scannedPages.push(finalImage);
+            capturedPages.push(finalImage);
             updateGallery();
             showGallery();
             window.showToast("Page added to document.", "success");
@@ -601,11 +632,9 @@ export function renderScanToPdf(container) {
         showGallery();
     };
 
-    const showGallery = () => {
-        editStage.style.display = 'none';
-        galleryStage.style.display = 'block';
+    const updateGallery = () => {
         scanGallery.innerHTML = '';
-        scanCountBadge.style.display = 'block';
+        scanCountBadge.style.display = capturedPages.length ? 'block' : 'none';
         scanCountBadge.innerText = `${capturedPages.length} Pages`;
         
         capturedPages.forEach((src, idx) => {
@@ -613,14 +642,25 @@ export function renderScanToPdf(container) {
             thumb.className = 'scan-thumb';
             thumb.innerHTML = `
                 <img src="${src}">
-                <button class="btn-del-thumb" data-idx="${idx}"><i class="fa-solid fa-times"></i></button>
+                <button class="btn-del-thumb" data-idx="${idx}"><i class="fa-solid fa-trash-can"></i></button>
             `;
-            thumb.querySelector('.btn-del-thumb').onclick = () => {
+            thumb.querySelector('.btn-del-thumb').onclick = (e) => {
+                e.stopPropagation();
                 capturedPages.splice(idx, 1);
-                showGallery();
+                updateGallery();
+                if (capturedPages.length === 0) {
+                    galleryStage.style.display = 'none';
+                    placeholder.style.display = 'flex';
+                }
             };
             scanGallery.appendChild(thumb);
         });
+    };
+
+    const showGallery = () => {
+        editStage.style.display = 'none';
+        galleryStage.style.display = 'block';
+        updateGallery();
     };
 
     // 9. Event Bindings
