@@ -205,25 +205,26 @@ export function renderScanToPdf(container) {
 
         try {
             console.log("Starting scanner initialization...");
-            const isCVReady = await ensureCV();
             
+            // 1. START CAMERA IMMEDIATELY (Don't wait for OpenCV)
             const constraints = {
                 video: { 
                     facingMode: facingMode, 
-                    width: { ideal: 1920 }, // High-res for maximum accuracy
-                    height: { ideal: 1080 } 
+                    width: { ideal: 1280 }, // Lowered to 720p for fast start on more devices
+                    height: { ideal: 720 } 
                 }
             };
 
             stream = await navigator.mediaDevices.getUserMedia(constraints);
             video.srcObject = stream;
             
-            // Explicitly call play for broader device support
+            // Play video (mute for auto-play policy)
+            video.muted = true;
             await video.play().catch(e => console.warn("Video play error:", e));
-            
-            video.onloadedmetadata = () => {
-                // Ensure we have valid dimensions before starting CV
-                const checkDimensions = () => {
+
+            // Hide placeholder and show UI once video starts
+            video.onloadedmetadata = async () => {
+                const checkDimensions = async () => {
                     if (video.videoWidth > 0 && video.videoHeight > 0) {
                         console.log(`Stream Dimensions Valid: ${video.videoWidth}x${video.videoHeight}`);
                         placeholder.style.display = 'none';
@@ -234,29 +235,28 @@ export function renderScanToPdf(container) {
                         overlay.width = video.videoWidth;
                         overlay.height = video.videoHeight;
                         
-                        if (isCVReady) {
-                            const statusBadge = document.getElementById('auto-scan-status');
+                        btnInit.disabled = false;
+                        btnInit.innerHTML = originalBtnText;
+
+                        // 2. WAIT FOR OPEN-CV IN BACKGROUND
+                        const statusBadge = document.getElementById('auto-scan-status');
+                        if (statusBadge) statusBadge.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Smart Engine Loading...';
+                        
+                        const isCVReady = await ensureCV();
+                        
+                        if (isCVReady && scannerInterface.style.display !== 'none') {
                             if (statusBadge) statusBadge.innerHTML = '<i class="fa-solid fa-microchip"></i> Engine Ready';
                             startDetectionLoop();
-                        } else {
+                        } else if (!isCVReady) {
                             btnAuto.style.display = 'none';
-                            const statusBadge = document.getElementById('auto-scan-status');
                             if (statusBadge) statusBadge.innerHTML = '<i class="fa-solid fa-hand-pointer"></i> Manual Mode';
-                            window.showToast("Manual mode activated.", "info");
+                            window.showToast("Manual mode active.", "info");
                         }
                     } else {
-                        console.warn("Waiting for video dimensions...");
                         setTimeout(checkDimensions, 100);
                     }
                 };
                 checkDimensions();
-            };
-            
-            // Fallback for some browsers where onloadedmetadata is erratic
-            video.onloadeddata = () => {
-                if (scannerInterface.style.display === 'none') {
-                    video.onloadedmetadata();
-                }
             };
 
         } catch (err) {
@@ -268,6 +268,14 @@ export function renderScanToPdf(container) {
             window.showToast(msg, "error");
             btnInit.disabled = false;
             btnInit.innerHTML = originalBtnText;
+            stopScanner();
+        }
+    };
+
+    // Fallback for some browsers where onloadedmetadata is erratic
+    video.onloadeddata = () => {
+        if (scannerInterface.style.display === 'none') {
+            video.onloadedmetadata();
         }
     };
 
