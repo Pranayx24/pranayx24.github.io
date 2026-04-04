@@ -338,11 +338,13 @@ export function renderScanToPdf(container) {
         const edges = new cv.Mat();
         const dilated = new cv.Mat();
         const hierarchy = new cv.Mat();
-        const cap = new cv.VideoCapture(video);
+        // UNIVERSAL CAPTURE BRIDGE (Reliable on all mobile browsers)
+        const frameCanvas = document.createElement('canvas');
+        frameCanvas.width = DETECTION_WIDTH;
+        frameCanvas.height = detHeight;
+        const frameCtx = frameCanvas.getContext('2d', { alpha: false, willReadFrequently: true });
 
-        console.log("Ultra-Precision Engine Ready.");
-
-        let lastStablePointsHistory = [];
+        console.log("Universal Capture Bridge Ready.");
 
         const processFrame = () => {
             if (!detectionLoopActive) {
@@ -351,9 +353,11 @@ export function renderScanToPdf(container) {
             }
 
             try {
-                cap.read(srcFull);
-                cv.resize(srcFull, srcSmall, new cv.Size(DETECTION_WIDTH, detHeight));
-                
+                // Better than cv.VideoCapture: Manual canvas bridge
+                frameCtx.drawImage(video, 0, 0, DETECTION_WIDTH, detHeight);
+                const imageData = frameCtx.getImageData(0, 0, DETECTION_WIDTH, detHeight);
+                srcSmall.data.set(imageData.data);
+
                 // 1. ADVANCED PRE-PROCESSING
                 cv.cvtColor(srcSmall, gray, cv.COLOR_RGBA2GRAY);
                 cv.GaussianBlur(gray, blurred, new cv.Size(5, 5), 0);
@@ -361,13 +365,13 @@ export function renderScanToPdf(container) {
                 // Aggressive Edge Detection
                 cv.Canny(blurred, edges, 40, 120);
                 
-                // Close gaps using a larger kernel
+                // Thickening borders to bridge gaps
                 let kernel = cv.Mat.ones(5, 5, cv.CV_8U);
                 cv.dilate(edges, dilated, kernel);
                 kernel.delete();
 
                 const contours = new cv.MatVector();
-                cv.findContours(dilated, contours, hierarchy, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE);
+                cv.findContours(dilated, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
                 
                 let maxArea = -1;
                 let bestPoints = null;
@@ -376,8 +380,7 @@ export function renderScanToPdf(container) {
                     const cnt = contours.get(i);
                     const area = cv.contourArea(cnt);
                     
-                    // Lowered area threshold to 8% for distant scanning
-                    if (area < (DETECTION_WIDTH * detHeight * 0.08)) continue; 
+                    if (area < (DETECTION_WIDTH * detHeight * 0.05)) continue; // Very low 5% threshold
 
                     let peri = cv.arcLength(cnt, true);
                     let approx = new cv.Mat();
@@ -387,15 +390,7 @@ export function renderScanToPdf(container) {
                     while (e < 0.1) {
                         cv.approxPolyDP(cnt, approx, e * peri, true);
                         if (approx.rows === 4) break;
-                        e += 0.01;
-                    }
-
-                    // Fallback to Convex Hull
-                    if (approx.rows !== 4) {
-                        let hull = new cv.Mat();
-                        cv.convexHull(cnt, hull);
-                        cv.approxPolyDP(hull, approx, 0.05 * cv.arcLength(hull, true), true);
-                        hull.delete();
+                        if (approx.rows > 4) e += 0.02; else break;
                     }
 
                     if (approx.rows === 4 && area > maxArea) {
@@ -407,7 +402,21 @@ export function renderScanToPdf(container) {
                 }
                 contours.delete();
                 
-                // MAPPING AND STABILITY
+                // Diagnostics hud
+                const statusBadge = document.getElementById('auto-scan-status');
+                if (statusBadge) {
+                   if (bestPoints) {
+                       statusBadge.innerHTML = '<i class="fa-solid fa-expand"></i> Capturing...';
+                       statusBadge.style.background = 'var(--gold)';
+                       statusBadge.style.color = '#000';
+                   } else {
+                       statusBadge.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i> Searching...';
+                       statusBadge.style.background = 'rgba(255,255,255,0.1)';
+                       statusBadge.style.color = '#fff';
+                   }
+                }
+
+                // MAPPING AND STABILITY (Lowered for v12.0)
                 const videoViewAspect = video.clientWidth / video.clientHeight;
                 const videoSourceAspect = video.videoWidth / video.videoHeight;
                 let scaleFactor = 1, offsetX = 0, offsetY = 0;
@@ -435,11 +444,10 @@ export function renderScanToPdf(container) {
                     const ordered = orderPoints(mappedPts);
                     drawOverlay(ctx, ordered, true, video, overlay);
                     
-                    // AUTO-CAPTURE (Stability window)
                     if (autoCaptureEnabled && !isCapturing) {
                         const isStable = lastStablePoints && ordered.every((pt, idx) => {
                             const d = Math.sqrt(Math.pow(pt.x - lastStablePoints[idx].x, 2) + Math.pow(pt.y - lastStablePoints[idx].y, 2));
-                            return d < 25; // More forgiving stability
+                            return d < 35; // Very forgiving for handheld stability
                         });
 
                         if (isStable) stabilityCounter++;
@@ -464,7 +472,7 @@ export function renderScanToPdf(container) {
                     scannerAnimationFrame = requestAnimationFrame(processFrame);
                 }, 40); 
             } catch (e) {
-                console.warn("CV Frame Error:", e);
+                console.warn("CV Engine Failure (Retrying):", e);
                 requestAnimationFrame(processFrame);
             }
         };
