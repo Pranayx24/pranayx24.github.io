@@ -237,8 +237,8 @@ export function renderScanToPdf(container) {
             
             await video.play().catch(e => console.warn("Video play error:", e));
 
-            // Hide placeholder and show UI once video starts
-            video.onloadedmetadata = async () => {
+            // Initializing sequence
+            const onCameraReady = async () => {
                 const checkDimensions = async () => {
                     if (video.videoWidth > 0 && video.videoHeight > 0) {
                         console.log(`Stream Dimensions Valid: ${video.videoWidth}x${video.videoHeight}`);
@@ -274,6 +274,9 @@ export function renderScanToPdf(container) {
                 checkDimensions();
             };
 
+            video.onloadedmetadata = onCameraReady;
+            video.onloadeddata = onCameraReady; // redundancy for mobile/erratic events
+
         } catch (err) {
             console.error("Scanner Error:", err);
             let msg = "Camera access denied.";
@@ -284,13 +287,6 @@ export function renderScanToPdf(container) {
             btnInit.disabled = false;
             btnInit.innerHTML = originalBtnText;
             stopScanner();
-        }
-    };
-
-    // Fallback for some browsers where onloadedmetadata is erratic
-    video.onloadeddata = () => {
-        if (scannerInterface.style.display === 'none') {
-            video.onloadedmetadata();
         }
     };
 
