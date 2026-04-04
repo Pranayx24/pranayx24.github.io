@@ -171,28 +171,36 @@ export function renderScanToPdf(container) {
     // 4. Utility: Wait for OpenCV to be ready with Graceful Degradation
     const ensureCV = () => {
         return new Promise((resolve) => {
-            if (window.cv && window.cv.Mat) {
+            // Already loaded and initialized
+            if (window.cv && window.cv.Mat && window.cv instanceof Promise === false) {
                 cvLoaded = true;
                 resolve(true);
                 return;
             }
             
-            console.log("Waiting for OpenCV...");
+            console.log("Detecting OpenCV Runtime status...");
             
-            // Timeout after 10 seconds - if it fails, we fall back to "Basic Mode"
-            const timeout = setTimeout(() => {
-                clearInterval(interval);
-                console.warn("OpenCV load timed out. Falling back to Basic Mode.");
-                window.showToast("Slow connection: Document detection disabled. Manual capture only.", "warning");
-                resolve(false); // Not loaded, but continue
-            }, 10000);
+            // Standard OpenCV.js wait-for-runtime logic
+            if (window.cv) {
+                window.cv.onRuntimeInitialized = () => {
+                   console.log("OpenCV Runtime Initialized via event.");
+                   cvLoaded = true;
+                   resolve(true);
+                };
+            }
 
+            // Fallback timeout and polling (Aggressive)
+            let attempts = 0;
             const interval = setInterval(() => {
+                attempts++;
                 if (window.cv && window.cv.Mat) {
                     clearInterval(interval);
-                    clearTimeout(timeout);
                     cvLoaded = true;
                     resolve(true);
+                } else if (attempts > 50) { // 10 seconds
+                    clearInterval(interval);
+                    console.warn("OpenCV Init Timeout.");
+                    resolve(false);
                 }
             }, 200);
         });
