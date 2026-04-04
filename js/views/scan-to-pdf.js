@@ -288,6 +288,8 @@ export function renderScanToPdf(container) {
         const hierarchy = new cv.Mat();
         const cap = new cv.VideoCapture(video);
 
+        console.log("Detection Loop initialized.");
+
         const processFrame = () => {
             if (!detectionLoopActive) {
                 srcFull.delete(); srcSmall.delete(); gray.delete(); blurred.delete(); thresh.delete(); contours.delete(); hierarchy.delete();
@@ -295,17 +297,17 @@ export function renderScanToPdf(container) {
             }
 
             try {
-                // Read full frame
                 cap.read(srcFull);
-                
-                // Downsample for performance (THIS PREVENTS THE UI HANG)
                 cv.resize(srcFull, srcSmall, new cv.Size(DETECTION_WIDTH, detHeight), 0, 0, cv.INTER_AREA);
                 
+                // Enhanced preprocessing for better edge detection
                 cv.cvtColor(srcSmall, gray, cv.COLOR_RGBA2GRAY);
                 cv.GaussianBlur(gray, blurred, new cv.Size(5, 5), 0);
-                cv.Canny(blurred, thresh, 75, 200); // Using Canny for sharper edge detection
                 
-                // Detection logic: find largest contour with 4 corners
+                // Adaptive threshold is more robust for document scanning
+                cv.adaptiveThreshold(blurred, thresh, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 11, 2);
+                
+                // Find contours
                 cv.findContours(thresh, contours, hierarchy, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE);
                 
                 let maxArea = -1;
@@ -316,10 +318,12 @@ export function renderScanToPdf(container) {
                     let area = cv.contourArea(cnt);
                     let peri = cv.arcLength(cnt, true);
                     let approx = new cv.Mat();
-                    cv.approxPolyDP(cnt, approx, 0.02 * peri, true);
+                    
+                    // Slightly more relaxed approximation for handheld devices
+                    cv.approxPolyDP(cnt, approx, 0.025 * peri, true);
 
-                    // Area threshold adjusted for downsampled image
-                    if (approx.rows === 4 && area > (DETECTION_WIDTH * detHeight * 0.1) && area > maxArea) {
+                    // Lower area threshold (5% of screen instead of 10%)
+                    if (approx.rows === 4 && area > (DETECTION_WIDTH * detHeight * 0.05) && area > maxArea) {
                         maxArea = area;
                         bestContour = approx;
                     } else {
@@ -333,7 +337,6 @@ export function renderScanToPdf(container) {
                 if (bestContour) {
                     const pts = [];
                     for (let i = 0; i < 4; i++) {
-                        // Scale points back up to full video resolution
                         pts.push({ 
                             x: bestContour.data32S[i * 2] * ratio, 
                             y: bestContour.data32S[i * 2 + 1] * ratio 
@@ -347,8 +350,8 @@ export function renderScanToPdf(container) {
                     if (autoCaptureEnabled) {
                         stabilityCounter++;
                         if (stabilityCounter > STABILITY_THRESHOLD) {
-                            stabilityCounter = 0;
-                            captureSnapshot();
+                             stabilityCounter = 0;
+                             captureSnapshot();
                         }
                     }
                     bestContour.delete();
@@ -359,15 +362,15 @@ export function renderScanToPdf(container) {
                     }
                 }
 
-                // Throttle to ~20FPS to prevent CPU overheating
+                // Smooth frame rate
                 setTimeout(() => {
                     scannerAnimationFrame = requestAnimationFrame(processFrame);
-                }, 30); 
+                }, 33); 
             } catch (e) {
-                console.warn("Detection error:", e);
+                console.warn("Detection Loop Exception:", e);
                 setTimeout(() => {
                     scannerAnimationFrame = requestAnimationFrame(processFrame);
-                }, 500); // Wait longer on error
+                }, 500);
             }
         };
 
