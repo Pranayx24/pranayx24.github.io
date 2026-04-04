@@ -80,6 +80,7 @@ export function renderScanToPdf(container) {
                 <div class="edit-actions" style="margin-top: 1.5rem;">
                     <div class="filter-bar" style="display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 2rem;">
                         <button class="filter-btn active" data-filter="original">Original</button>
+                        <button class="filter-btn" data-filter="magic">Magic</button>
                         <button class="filter-btn" data-filter="grayscale">Grayscale</button>
                         <button class="filter-btn" data-filter="scan">B&W</button>
                     </div>
@@ -318,8 +319,7 @@ export function renderScanToPdf(container) {
         const cv = window.cv;
         detectionLoopActive = true;
         
-        // Dynamic detection resolution for balance between speed and quality
-        const DETECTION_WIDTH = 320;
+        const DETECTION_WIDTH = 480; // Higher res for better precision
         const ratio = video.videoWidth / DETECTION_WIDTH;
         const detHeight = video.videoHeight / ratio;
 
@@ -327,126 +327,109 @@ export function renderScanToPdf(container) {
         const srcSmall = new cv.Mat(detHeight, DETECTION_WIDTH, cv.CV_8UC4);
         const gray = new cv.Mat();
         const blurred = new cv.Mat();
-        const thresh = new cv.Mat();
-        const contours = new cv.MatVector();
+        const edges = new cv.Mat();
+        const dilated = new cv.Mat();
         const hierarchy = new cv.Mat();
         const cap = new cv.VideoCapture(video);
 
-        console.log("Aggressive Recognition Engine Started.");
+        console.log("Ultra-Precision Engine Ready.");
+
+        let lastStablePointsHistory = [];
 
         const processFrame = () => {
             if (!detectionLoopActive) {
-                srcFull.delete(); srcSmall.delete(); gray.delete(); blurred.delete(); thresh.delete(); contours.delete(); hierarchy.delete();
+                srcFull.delete(); srcSmall.delete(); gray.delete(); blurred.delete(); edges.delete(); dilated.delete(); hierarchy.delete();
                 return;
             }
 
             try {
                 cap.read(srcFull);
-                cv.resize(srcFull, srcSmall, new cv.Size(DETECTION_WIDTH, detHeight), 0, 0, cv.INTER_AREA);
+                cv.resize(srcFull, srcSmall, new cv.Size(DETECTION_WIDTH, detHeight));
                 
-                // Extremely robust processing chain
+                // 1. IMPROVED PRE-PROCESSING
                 cv.cvtColor(srcSmall, gray, cv.COLOR_RGBA2GRAY);
                 cv.GaussianBlur(gray, blurred, new cv.Size(5, 5), 0);
                 
-                // Using Adaptive Thresholding + Canny for universal paper detection
-                cv.adaptiveThreshold(blurred, thresh, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 11, 2);
-                cv.Canny(thresh, thresh, 75, 200);
+                // Adaptive thresholding to handle lighting changes, then Canny for edges
+                cv.Canny(blurred, edges, 50, 150);
                 
-                // Slightly thicken edges so gaps are filled
-                let M = cv.Mat.ones(3, 3, cv.CV_8U);
-                cv.dilate(thresh, thresh, M);
-                M.delete();
+                // Close gaps in edges using dilation
+                let kernel = cv.Mat.ones(3, 3, cv.CV_8U);
+                cv.dilate(edges, dilated, kernel);
+                kernel.delete();
 
-                cv.findContours(thresh, contours, hierarchy, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE);
+                const contours = new cv.MatVector();
+                cv.findContours(dilated, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
                 
                 let maxArea = -1;
                 let bestPoints = null;
 
                 for (let i = 0; i < contours.size(); ++i) {
-                    let cnt = contours.get(i);
-                    let area = cv.contourArea(cnt);
+                    const cnt = contours.get(i);
+                    const area = cv.contourArea(cnt);
                     
-                    // Paper should take at least 4% of the screen
-                    if (area < (DETECTION_WIDTH * detHeight * 0.04)) continue;
+                    if (area < (DETECTION_WIDTH * detHeight * 0.1)) continue; // Filter small stuff
 
-                    let peri = cv.arcLength(cnt, true);
-                    let approx = new cv.Mat();
+                    const peri = cv.arcLength(cnt, true);
+                    const approx = new cv.Mat();
                     cv.approxPolyDP(cnt, approx, 0.02 * peri, true);
 
-                    // If it's a quad, it's perfect. If it's 5-6 points, we take it anyway and simplify
-                    if (approx.rows >= 4 && approx.rows <= 6 && area > maxArea) {
+                    if (approx.rows === 4 && area > maxArea) {
                         maxArea = area;
-                        
-                        // If it has more than 4 points, simplify it to 4 using a quad-fit
-                        if (approx.rows > 4) {
-                           let hull = new cv.Mat();
-                           cv.convexHull(approx, hull);
-                           let refined = new cv.Mat();
-                           cv.approxPolyDP(hull, refined, 0.05 * cv.arcLength(hull, true), true);
-                           if (refined.rows === 4) {
-                               bestPoints = refined;
-                           } else {
-                               refined.delete();
-                           }
-                           hull.delete();
-                        } else {
-                           bestPoints = approx;
-                        }
-                    } else {
-                        approx.delete();
+                        if (bestPoints) bestPoints.delete();
+                        bestPoints = approx.clone();
                     }
+                    approx.delete();
+                }
+                contours.delete();
+
+                // COORDINATE MAPPING (Display to Viewport)
+                const videoViewAspect = video.clientWidth / video.clientHeight;
+                const videoSourceAspect = video.videoWidth / video.videoHeight;
+                let scaleFactor = 1, offsetX = 0, offsetY = 0;
+
+                if (videoViewAspect > videoSourceAspect) {
+                    scaleFactor = video.clientWidth / video.videoWidth;
+                    offsetY = (video.videoHeight * scaleFactor - video.clientHeight) / 2;
+                } else {
+                    scaleFactor = video.clientHeight / video.videoHeight;
+                    offsetX = (video.videoWidth * scaleFactor - video.clientWidth) / 2;
                 }
 
                 const ctx = overlay.getContext('2d');
                 ctx.clearRect(0, 0, overlay.width, overlay.height);
 
                 if (bestPoints) {
-                    // DISPLAY SCALE MAPPING (Object-fit: Cover) logic
-                    const videoViewAspect = video.clientWidth / video.clientHeight;
-                    const videoSourceAspect = video.videoWidth / video.videoHeight;
-                    
-                    let scale = 1;
-                    let offsetX = 0;
-                    let offsetY = 0;
-
-                    if (videoViewAspect > videoSourceAspect) {
-                        // View is wider than source, source is cropped vertically
-                        scale = video.clientWidth / video.videoWidth;
-                        offsetY = (video.videoHeight * scale - video.clientHeight) / 2;
-                    } else {
-                        // View is narrower than source, source is cropped horizontally
-                        scale = video.clientHeight / video.videoHeight;
-                        offsetX = (video.videoWidth * scale - video.clientWidth) / 2;
-                    }
-
-                    const pts = [];
+                    const mappedPts = [];
                     for (let i = 0; i < 4; i++) {
-                        // Map source pixels to displayed pixels with crop offset
-                        pts.push({ 
-                            x: (bestPoints.data32S[i * 2] * ratio) * scale - offsetX, 
-                            y: (bestPoints.data32S[i * 2 + 1] * ratio) * scale - offsetY
+                        mappedPts.push({ 
+                            x: (bestPoints.data32S[i * 2] * ratio) * scaleFactor - offsetX, 
+                            y: (bestPoints.data32S[i * 2 + 1] * ratio) * scaleFactor - offsetY
                         });
                     }
                     
-                    const ordered = orderPoints(pts);
-                    
-                    const ctx = overlay.getContext('2d');
-                    ctx.clearRect(0, 0, overlay.width, overlay.height);
+                    const ordered = orderPoints(mappedPts);
                     drawOverlay(ctx, ordered, true, video, overlay);
                     
-                    lastStablePoints = ordered;
-                    
-                    if (autoCaptureEnabled) {
-                        stabilityCounter++;
+                    // AUTO-CAPTURE LOGIC (STABILITY CHECK)
+                    if (autoCaptureEnabled && !isCapturing) {
+                        const isStable = lastStablePoints && ordered.every((pt, idx) => {
+                            const d = Math.sqrt(Math.pow(pt.x - lastStablePoints[idx].x, 2) + Math.pow(pt.y - lastStablePoints[idx].y, 2));
+                            return d < 15; // Point moved less than 15px
+                        });
+
+                        if (isStable) stabilityCounter++;
+                        else stabilityCounter = 0;
+
                         if (stabilityCounter > STABILITY_THRESHOLD) {
-                             stabilityCounter = 0;
-                             captureSnapshot();
+                            stabilityCounter = 0;
+                            captureSnapshot();
                         }
                     }
+
+                    lastStablePoints = ordered;
                     bestPoints.delete();
                 } else {
-                    const ctx = overlay.getContext('2d');
-                    ctx.clearRect(0, 0, overlay.width, overlay.height);
                     stabilityCounter = Math.max(0, stabilityCounter - 2);
                     if (lastStablePoints) {
                         drawOverlay(ctx, lastStablePoints, false, video, overlay);
@@ -455,41 +438,25 @@ export function renderScanToPdf(container) {
 
                 setTimeout(() => {
                     scannerAnimationFrame = requestAnimationFrame(processFrame);
-                }, 33); 
+                }, 40); 
             } catch (e) {
-                console.warn("Aggr CV Exception:", e);
-                setTimeout(() => {
-                    scannerAnimationFrame = requestAnimationFrame(processFrame);
-                }, 500);
+                console.warn("CV Frame Error:", e);
+                requestAnimationFrame(processFrame);
             }
         };
-
         processFrame();
     };
 
     const orderPoints = (pts) => {
-        // Robust sort using center of mass to avoid issues with portrait aspect ratios
-        const centerX = pts.reduce((a, b) => a + b.x, 0) / 4;
-        const centerY = pts.reduce((a, b) => a + b.y, 0) / 4;
-
-        const tl = pts.find(p => p.x < centerX && p.y < centerY) || pts[0];
-        const tr = pts.find(p => p.x >= centerX && p.y < centerY) || pts[1];
-        const br = pts.find(p => p.x >= centerX && p.y >= centerY) || pts[2];
-        const bl = pts.find(p => p.x < centerX && p.y >= centerY) || pts[3];
-        
-        return [tl, tr, br, bl];
+        // Sort based on geometric position
+        const sorted = [...pts].sort((a, b) => a.y - b.y);
+        const top = sorted.slice(0, 2).sort((a, b) => a.x - b.x);
+        const bottom = sorted.slice(2, 4).sort((a, b) => a.x - b.x);
+        return [top[0], top[1], bottom[1], bottom[0]]; // TL, TR, BR, BL
     };
 
     const drawOverlay = (ctx, pts, active, video, canvas) => {
-        // PRECISION MAPPING: Align internal coordinates to the displayed "object-fit: cover" video
-        // We calculate how the browser fits the videoWidth/Height into the canvas CSS width/height
-        const cw = canvas.width;
-        const ch = canvas.height;
-        const vw = video.videoWidth;
-        const vh = video.videoHeight;
-        
         ctx.save();
-        
         ctx.beginPath();
         ctx.moveTo(pts[0].x, pts[0].y);
         ctx.lineTo(pts[1].x, pts[1].y);
@@ -498,32 +465,23 @@ export function renderScanToPdf(container) {
         ctx.closePath();
         
         const mainColor = active ? '#d4af37' : '#ffffff';
-        const glowColor = active ? 'rgba(212, 175, 55, 0.4)' : 'rgba(255, 255, 255, 0.2)';
-
-        // Outer Glow
         ctx.shadowBlur = 15;
         ctx.shadowColor = mainColor;
         ctx.strokeStyle = mainColor;
-        ctx.lineWidth = 10;
+        ctx.lineWidth = 6;
         ctx.stroke();
 
-        ctx.fillStyle = glowColor;
+        ctx.fillStyle = active ? 'rgba(212, 175, 55, 0.3)' : 'rgba(255, 255, 255, 0.1)';
         ctx.fill();
 
         if (active) {
-            const time = Date.now() / 1000;
-            const scanY = (Math.sin(time * 3) + 1) / 2; // oscillates 0 to 1
-            const minX = Math.min(pts[0].x, pts[3].x, pts[1].x, pts[2].x);
-            const maxX = Math.max(pts[1].x, pts[2].x, pts[0].x, pts[3].x);
-            const minY = Math.min(pts[0].y, pts[1].y, pts[2].y, pts[3].y);
-            const maxY = Math.max(pts[2].y, pts[3].y, pts[0].y, pts[1].y);
-            const currentY = minY + (maxY - minY) * scanY;
-            
+            // Visual stability progress bar
+            const progress = stabilityCounter / STABILITY_THRESHOLD;
             ctx.beginPath();
-            ctx.moveTo(minX, currentY);
-            ctx.lineTo(maxX, currentY);
-            ctx.strokeStyle = 'rgba(212, 175, 55, 0.8)';
-            ctx.lineWidth = 4;
+            ctx.moveTo(pts[0].x, pts[0].y);
+            ctx.lineTo(pts[0].x + (pts[1].x - pts[0].x) * progress, pts[0].y + (pts[1].y - pts[0].y) * progress);
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 10;
             ctx.stroke();
         }
         ctx.restore();
@@ -549,26 +507,34 @@ export function renderScanToPdf(container) {
 
         stopScanner();
 
-        // Check if OpenCV is ready for advanced processing
         if (cvLoaded) {
-            // Keep current corners as default Edit points
-            corners = lastStablePoints ? JSON.parse(JSON.stringify(lastStablePoints)) : null;
-            
-            // Default corners if none detected
-            if (!corners) {
+            // Map viewport points back to video resolution coordinates for warping
+            const videoViewAspect = video.clientWidth / video.clientHeight;
+            const videoSourceAspect = video.videoWidth / video.videoHeight;
+            let scaleFactor = 1, offsetX = 0, offsetY = 0;
+
+            if (videoViewAspect > videoSourceAspect) {
+                scaleFactor = video.clientWidth / video.videoWidth;
+                offsetY = (video.videoHeight * scaleFactor - video.clientHeight) / 2;
+            } else {
+                scaleFactor = video.clientHeight / video.videoHeight;
+                offsetX = (video.videoWidth * scaleFactor - video.clientWidth) / 2;
+            }
+
+            if (lastStablePoints) {
+                corners = lastStablePoints.map(pt => ({
+                    x: (pt.x + offsetX) / scaleFactor,
+                    y: (pt.y + offsetY) / scaleFactor
+                }));
+            } else {
                 const w = video.videoWidth, h = video.videoHeight;
-                const m = 100;
-                corners = [ {x:m,y:m}, {x:w-m,y:m}, {x:w-m,y:h-m}, {x:m,y:h-m} ];
+                corners = [ {x:w*0.1,y:h*0.1}, {x:w*0.9,y:h*0.1}, {x:w*0.9,y:h*0.9}, {x:w*0.1,y:h*0.9} ];
             }
             showEditingStage();
         } else {
-            // Fallback: Skip editing/warping and add directly to gallery
-            console.log("Adding image directly (Basic Mode)");
             const finalImage = rawImageData.toDataURL('image/jpeg', 0.9);
             capturedPages.push(finalImage);
-            updateGallery();
             showGallery();
-            window.showToast("Page added to document.", "success");
         }
         
         isCapturing = false;
@@ -577,17 +543,14 @@ export function renderScanToPdf(container) {
     const showEditingStage = () => {
         scannerInterface.style.display = 'none';
         editStage.style.display = 'block';
-        
-        // Scale handles relative to canvas display size
-        const ratio = Math.min(window.innerWidth / rawImageData.width, 500 / rawImageData.height);
         editCanvas.width = rawImageData.width;
         editCanvas.height = rawImageData.height;
-        
         drawEditScreen();
         initCornerHandles();
     };
 
     const drawEditScreen = () => {
+        editContext.clearRect(0,0,editCanvas.width, editCanvas.height);
         editContext.drawImage(rawImageData, 0, 0);
         editContext.beginPath();
         editContext.moveTo(corners[0].x, corners[0].y);
@@ -634,15 +597,13 @@ export function renderScanToPdf(container) {
             };
 
             const onEnd = () => isDragging = false;
-
             handle.onmousedown = (e) => { isDragging = true; e.preventDefault(); };
             handle.ontouchstart = (e) => { isDragging = true; e.preventDefault(); };
             
             window.addEventListener('mousemove', onMove);
-            window.addEventListener('touchmove', onMove);
+            window.addEventListener('touchmove', onMove, {passive: false});
             window.addEventListener('mouseup', onEnd);
             window.addEventListener('touchend', onEnd);
-            
             cornerContainer.appendChild(handle);
         });
     };
@@ -650,18 +611,20 @@ export function renderScanToPdf(container) {
     // 8. Final Image Generation (Warp + Filter)
     const finalizePage = async () => {
         const cv = window.cv;
+        if (!cv) return;
+
         const src = cv.imread(rawImageData);
         const dst = new cv.Mat();
         
-        // Define destination size (estimate from average edge lengths)
-        const d1 = Math.sqrt(Math.pow(corners[1].x - corners[0].x, 2) + Math.pow(corners[1].y - corners[0].y, 2));
-        const d2 = Math.sqrt(Math.pow(corners[2].x - corners[3].x, 2) + Math.pow(corners[2].y - corners[3].y, 2));
-        const finalWidth = Math.max(d1, d2);
-        
-        const d3 = Math.sqrt(Math.pow(corners[3].x - corners[0].x, 2) + Math.pow(corners[3].y - corners[0].y, 2));
-        const d4 = Math.sqrt(Math.pow(corners[2].x - corners[1].x, 2) + Math.pow(corners[2].y - corners[1].y, 2));
-        const finalHeight = Math.max(d3, d4);
-        
+        // Perspective Mapping
+        const widthA = Math.hypot(corners[2].x - corners[3].x, corners[2].y - corners[3].y);
+        const widthB = Math.hypot(corners[1].x - corners[0].x, corners[1].y - corners[0].y);
+        const maxWidth = Math.max(widthA, widthB);
+
+        const heightA = Math.hypot(corners[1].x - corners[2].x, corners[1].y - corners[2].y);
+        const heightB = Math.hypot(corners[0].x - corners[3].x, corners[0].y - corners[3].y);
+        const maxHeight = Math.max(heightA, heightB);
+
         const srcCoords = cv.matFromArray(4, 1, cv.CV_32FC2, [
             corners[0].x, corners[0].y,
             corners[1].x, corners[1].y,
@@ -671,25 +634,32 @@ export function renderScanToPdf(container) {
         
         const dstCoords = cv.matFromArray(4, 1, cv.CV_32FC2, [
             0, 0,
-            finalWidth, 0,
-            finalWidth, finalHeight,
-            0, finalHeight
+            maxWidth, 0,
+            maxWidth, maxHeight,
+            0, maxHeight
         ]);
         
         const M = cv.getPerspectiveTransform(srcCoords, dstCoords);
-        cv.warpPerspective(src, dst, M, new cv.Size(finalWidth, finalHeight));
+        cv.warpPerspective(src, dst, M, new cv.Size(maxWidth, maxHeight));
         
-        // Apply Filters
-        if (selectedFilter === 'grayscale') {
+        // ENHANCED FILTERS
+        if (selectedFilter === 'magic') {
+            // Contrast Stretching (Magic Filter)
+            let out = new cv.Mat();
+            dst.convertTo(out, -1, 1.4, -50); // Alpha: Contrast, Beta: Brightness
+            out.copyTo(dst);
+            out.delete();
+        } else if (selectedFilter === 'grayscale') {
             cv.cvtColor(dst, dst, cv.COLOR_RGBA2GRAY);
         } else if (selectedFilter === 'scan') {
+            // Adaptive Document Black & White
             cv.cvtColor(dst, dst, cv.COLOR_RGBA2GRAY);
-            cv.threshold(dst, dst, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU);
+            cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 21, 15);
         }
 
         const outCanvas = document.createElement('canvas');
         cv.imshow(outCanvas, dst);
-        capturedPages.push(outCanvas.toDataURL('image/jpeg', 0.85));
+        capturedPages.push(outCanvas.toDataURL('image/jpeg', 0.9));
         
         src.delete(); dst.delete(); srcCoords.delete(); dstCoords.delete(); M.delete();
         showGallery();
