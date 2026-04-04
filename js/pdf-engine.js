@@ -1,6 +1,16 @@
-// Safe library accessors
-export const getPDFLib = () => window.PDFLib || (typeof PDFLib !== 'undefined' ? PDFLib : null);
-export const getPDFJS = () => window.pdfjsLib || (typeof pdfjsLib !== 'undefined' ? pdfjsLib : null);
+// Safe library accessors with thorough window/global checks
+export const getPDFLib = () => {
+    return window.PDFLib || 
+           (typeof PDFLib !== 'undefined' ? PDFLib : null) || 
+           window.pdfLib || 
+           (typeof pdfLib !== 'undefined' ? pdfLib : null);
+};
+export const getPDFJS = () => {
+    return window.pdfjsLib || 
+           (typeof pdfjsLib !== 'undefined' ? pdfjsLib : null) || 
+           window.PDFJS || 
+           (typeof PDFJS !== 'undefined' ? PDFJS : null);
+};
 
 
 // Resource URLs for dynamic importing — restored for maximum reliability

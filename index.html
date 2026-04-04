@@ -30,7 +30,14 @@
     <link rel="stylesheet" href="css/style.css">
     
     <!-- PDF libs -->
-    <script src="https://cdn.jsdelivr.net/npm/pdf-lib-with-encrypt@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script>
+        // Emergency Fallback if jsdelivr fails
+        if (!window.PDFLib) {
+            console.warn("PDFLib failed to load from primary CDN, trying fallback...");
+            document.write('<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"><\/script>');
+        }
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
