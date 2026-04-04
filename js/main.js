@@ -20,7 +20,7 @@ import { renderSign } from './views/sign.js';
 import { renderRepair } from './views/repair.js';
 import { renderPdfToText } from './views/pdf-to-text.js';
 import { renderCrop } from './views/crop.js';
-import { renderScanToPdf } from './views/scan-v2.js?v=2.4';
+import { renderScanToPdf } from './views/scan-ultra.js?v=3.5';
 
 // Simple Hash Router for SPA
 const routes = {
