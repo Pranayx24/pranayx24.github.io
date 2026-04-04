@@ -697,6 +697,7 @@ export function renderScanToPdf(container) {
         editStage.style.display = 'none';
         galleryStage.style.display = 'block';
         updateGallery();
+        window.scrollTo({ top: galleryStage.offsetTop, behavior: 'smooth' });
     };
 
     // 9. Event Bindings
