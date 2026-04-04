@@ -671,6 +671,15 @@ export function renderScanToPdf(container) {
         const heightB = Math.hypot(corners[0].x - corners[3].x, corners[0].y - corners[3].y);
         const maxHeight = Math.max(heightA, heightB);
 
+        // Cap resolution for memory stability while keeping print quality
+        const SCAN_LIMIT = 2200;
+        let finalW = maxWidth, finalH = maxHeight;
+        if (maxWidth > SCAN_LIMIT || maxHeight > SCAN_LIMIT) {
+             const factor = SCAN_LIMIT / Math.max(maxWidth, maxHeight);
+             finalW = maxWidth * factor;
+             finalH = maxHeight * factor;
+        }
+
         const srcCoords = cv.matFromArray(4, 1, cv.CV_32FC2, [
             corners[0].x, corners[0].y,
             corners[1].x, corners[1].y,
@@ -679,33 +688,30 @@ export function renderScanToPdf(container) {
         ]);
         
         const dstCoords = cv.matFromArray(4, 1, cv.CV_32FC2, [
-            0, 0,
-            maxWidth, 0,
-            maxWidth, maxHeight,
-            0, maxHeight
+            0, 0, finalW, 0, finalW, finalH, 0, finalH
         ]);
         
         const M = cv.getPerspectiveTransform(srcCoords, dstCoords);
-        cv.warpPerspective(src, dst, M, new cv.Size(maxWidth, maxHeight));
+        cv.warpPerspective(src, dst, M, new cv.Size(finalW, finalH), cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
         
-        // ENHANCED FILTERS
+        // ENHANCED FILTERS (v14.0 High-Legibility)
         if (selectedFilter === 'magic') {
-            // Contrast Stretching (Magic Filter)
+            // Adaptive Contrast Stretching
+            cv.cvtColor(dst, dst, cv.COLOR_RGBA2RGB); 
             let out = new cv.Mat();
-            dst.convertTo(out, -1, 1.4, -50); // Alpha: Contrast, Beta: Brightness
+            cv.normalize(dst, out, 0, 255, cv.NORM_MINMAX, cv.CV_8UC3);
             out.copyTo(dst);
             out.delete();
         } else if (selectedFilter === 'grayscale') {
             cv.cvtColor(dst, dst, cv.COLOR_RGBA2GRAY);
         } else if (selectedFilter === 'scan') {
-            // Adaptive Document Black & White
             cv.cvtColor(dst, dst, cv.COLOR_RGBA2GRAY);
             cv.adaptiveThreshold(dst, dst, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 21, 15);
         }
 
         const outCanvas = document.createElement('canvas');
         cv.imshow(outCanvas, dst);
-        capturedPages.push(outCanvas.toDataURL('image/jpeg', 0.9));
+        capturedPages.push(outCanvas.toDataURL('image/jpeg', 0.92));
         
         src.delete(); dst.delete(); srcCoords.delete(); dstCoords.delete(); M.delete();
         showGallery();
