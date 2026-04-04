@@ -220,24 +220,32 @@ export function renderScanToPdf(container) {
             video.srcObject = stream;
             
             video.onloadedmetadata = () => {
-                console.log(`Stream Ready: ${video.videoWidth}x${video.videoHeight}`);
-                placeholder.style.display = 'none';
-                scannerInterface.style.display = 'block';
-                galleryStage.style.display = 'none';
-                editStage.style.display = 'none';
-                
-                // Align internal canvas resolution to video stream resolution
-                overlay.width = video.videoWidth;
-                overlay.height = video.videoHeight;
-                
-                if (isCVReady) {
-                    console.log("Ready to start Smart Detection Loop.");
-                    startDetectionLoop();
-                } else {
-                    console.log("Starting in manual-only camera mode.");
-                    autoCaptureOption.style.display = 'none';
-                    window.showToast("Manual Mode enabled.", "info");
-                }
+                // Ensure we have valid dimensions before starting CV
+                const checkDimensions = () => {
+                    if (video.videoWidth > 0 && video.videoHeight > 0) {
+                        console.log(`Stream Dimensions Valid: ${video.videoWidth}x${video.videoHeight}`);
+                        placeholder.style.display = 'none';
+                        scannerInterface.style.display = 'block';
+                        galleryStage.style.display = 'none';
+                        editStage.style.display = 'none';
+                        
+                        overlay.width = video.videoWidth;
+                        overlay.height = video.videoHeight;
+                        
+                        if (isCVReady) {
+                            const statusBadge = document.getElementById('auto-scan-status');
+                            if (statusBadge) statusBadge.innerHTML = '<i class="fa-solid fa-microchip"></i> Engine Ready';
+                            startDetectionLoop();
+                        } else {
+                            autoCaptureOption.style.display = 'none';
+                            window.showToast("Smart detection engine skipped. Manual mode only.", "info");
+                        }
+                    } else {
+                        console.warn("Waiting for video dimensions...");
+                        setTimeout(checkDimensions, 100);
+                    }
+                };
+                checkDimensions();
             };
             
             // Fallback for some browsers where onloadedmetadata is erratic
