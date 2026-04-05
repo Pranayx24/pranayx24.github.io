@@ -72,7 +72,7 @@ export async function renderRedact(container) {
 
         try {
             const data = await activeFile.arrayBuffer();
-            const pdfDoc = await pLib.PDFDocument.load(data);
+            const pdfDoc = await pLib.PDFDocument.load(data, { ignoreEncryption: true });
             const pdfJs = await pdfjsLib.getDocument({ data }).promise;
 
             const pages = pdfDoc.getPages();
