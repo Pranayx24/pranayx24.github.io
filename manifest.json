@@ -1,0 +1,17 @@
+{
+    "name": "PDFLuxe - Power Document Station",
+    "short_name": "PDFLuxe",
+    "description": "Industrial-grade, privacy-first PDF tools running 100% in your browser.",
+    "start_url": "./",
+    "display": "standalone",
+    "background_color": "#020202",
+    "theme_color": "#d4af37",
+    "icons": [
+        {
+            "src": "https://cdn-icons-png.flaticon.com/512/337/337946.png",
+            "type": "image/png",
+            "sizes": "512x512",
+            "purpose": "any maskable"
+        }
+    ]
+}

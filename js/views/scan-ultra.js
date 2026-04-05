@@ -484,13 +484,28 @@ export function renderScanToPdf(container) {
                 const res = await fetch(imgData); const bytes = await res.arrayBuffer(); const image = await pdfDoc.embedJpg(bytes);
                 const page = pdfDoc.addPage([image.width, image.height]); page.drawImage(image, { x: 0, y: 0, width: image.width, height: image.height });
 
-                // Premium OCR Layering
+                // Premium Industrial OCR Layering
                 if (doOcr) {
                     try {
                         const { data: { words } } = await Tesseract.recognize(imgData, 'eng');
-                        // pdf-lib doesn't have a simple 'text box' API that matches Tesseract words directly without complex math,
-                        // but we can add invisible text or just log it for now. 
-                        // Real layering requires mapping Tesseract box to PDF points.
+                        const font = await pdfDoc.embedFont(pLib.StandardFonts.Helvetica);
+                        const pageHeight = image.height;
+
+                        for (const word of words) {
+                            // Map Tesseract coordinates to PDF coordinates
+                            // Tesseract (x0, y0, x1, y1) is pixels from top-left.
+                            // PDF (x, y) is points from bottom-left.
+                            const x = word.bbox.x0;
+                            const y = pageHeight - word.bbox.y1;
+                            const size = (word.bbox.y1 - word.bbox.y0) * 0.8;
+
+                            if (word.confidence > 60) {
+                                page.drawText(word.text, {
+                                    x: x, y: y, size: size > 0 ? size : 8,
+                                    font: font, opacity: 0 // Invisible layer
+                                });
+                            }
+                        }
                     } catch (e) { console.warn("OCR Page failed:", e); }
                 }
             }
