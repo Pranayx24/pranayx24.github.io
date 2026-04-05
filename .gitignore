@@ -1,0 +1,15 @@
+# Node.js
+node_modules/
+dist/
+build/
+.env
+.env.local
+.env.*.local
+*.log
+
+# Vercel
+.vercel
+
+# System
+.DS_Store
+Thumbs.db

@@ -1,186 +1,262 @@
 import { getPDFJS } from '../pdf-engine.js';
 
-export function renderPdfToImg(container) {
+export async function renderPdfToImg(container) {
     container.innerHTML = `
-        <div class="workspace">
-            <h2>PDF to Image</h2>
-            <p style="opacity: 0.8; margin-top: 0.5rem;">Convert your PDFs into high-quality images individually.</p>
-            
+        <div class="workspace" style="max-width: 1200px;">
+            <div class="tool-header">
+                <i class="fa-solid fa-camera-retro tool-header-icon" style="color: #f1c40f;"></i>
+                <h2>Studio PDF to Image</h2>
+                <p>Convert your PDF pages into stunning, high-resolution photographic images (JPG, PNG, WEBP).</p>
+            </div>
+
             <div class="upload-area" id="p2i-upload">
-                <i class="fa-solid fa-images upload-icon"></i>
-                <h3>Drag & Drop a PDF here</h3>
+                <i class="fa-solid fa-file-image upload-icon" style="color: #f1c40f;"></i>
+                <h3>Select PDF for Conversion</h3>
+                <p>Your document stays 100% private in your browser.</p>
                 <input type="file" id="p2i-file-input" accept="application/pdf" style="display: none;">
-                <button class="upload-btn" id="p2i-btn-select">Select PDF</button>
-            </div>
-            
-            <div class="file-list" id="p2i-file-list"></div>
-            
-            <div id="p2i-options" style="display: none; margin-top: 2rem; text-align: left;">
-                <label for="p2i-ranges" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
-                    Pages to Convert (e.g., "all", "1", "1-3, 5")
-                </label>
-                <input type="text" id="p2i-ranges" value="1" placeholder="Example: all or 1, 3-5" 
-                    style="width: 100%; padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color); background: transparent; color: var(--text-color); font-size: 1rem; font-family: inherit;">
-                <p style="font-size: 0.8rem; margin-top: 0.5rem; opacity: 0.6;">
-                    <i class="fa-solid fa-circle-info"></i> Your browser may ask for permission to allow multiple downloads.
-                </p>
-
-                <button class="btn-primary" id="btn-process-p2i" style="margin-top: 2rem;">
-                    <i class="fa-solid fa-image"></i> Convert to Image
-                </button>
+                <button class="upload-btn" id="p2i-btn-select" style="background: #f1c40f; color: #000;">Choose File</button>
             </div>
 
-            <div id="p2i-images-container" style="display:flex; flex-wrap:wrap; justify-content:center; gap:1rem; margin-top:2rem;"></div>
+            <div id="p2i-workspace" style="display: none;">
+                <div class="org-toolbar glass-card" style="padding: 1.5rem; margin-bottom: 2rem; display: flex; flex-direction: column; gap: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <span id="p2i-file-name" style="font-weight: 600; opacity: 0.8;"></span>
+                            <span id="p2i-page-count" class="badge" style="background: #f1c40f; color: #000;">0 Pages</span>
+                        </div>
+                        <div style="display: flex; gap: 1rem;">
+                            <button class="btn-secondary" id="btn-select-all-p2i" style="font-size: 0.8rem;">Select All</button>
+                            <button class="btn-secondary" id="btn-clear-p2i" style="color: #ff4757; font-size: 0.8rem;"><i class="fa-solid fa-trash-can"></i> Start Over</button>
+                        </div>
+                    </div>
+                    
+                    <div class="editor-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; text-align: left;">
+                        <div class="input-group">
+                            <label>Format</label>
+                            <select id="p2i-format">
+                                <option value="image/jpeg">JPG (Standard)</option>
+                                <option value="image/png">PNG (Lossless)</option>
+                                <option value="image/webp">WEBP (Modern)</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Quality (DPI)</label>
+                            <select id="p2i-dpi">
+                                <option value="1">72 DPI (Standard Web)</option>
+                                <option value="2" selected>144 DPI (Medium-Res)</option>
+                                <option value="3">300 DPI (High Fidelity)</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Download Method</label>
+                            <select id="p2i-method">
+                                <option value="zip">Package in ZIP (Recommended)</option>
+                                <option value="individual">Download Individually</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="p2i-pages-grid" class="pages-grid">
+                    <!-- Thumbnails -->
+                </div>
+
+                <div style="margin-top: 3rem; text-align: center;">
+                    <button class="btn-primary" id="btn-process-p2i" style="width: auto; padding: 1rem 4rem; background: linear-gradient(135deg, #f1c40f, #e67e22); color: #000;">
+                        <i class="fa-solid fa-images"></i> Convert Selected Pages
+                    </button>
+                    <p style="margin-top: 1rem; opacity: 0.6; font-size: 0.9rem;">High-fidelity rendering may take a moment for large files.</p>
+                </div>
+            </div>
         </div>
+
+        <style>
+            .pages-grid { 
+                display: grid; 
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
+                gap: 2rem; 
+                padding: 1rem;
+            }
+            .p2i-card {
+                background: rgba(255,255,255,0.05);
+                border: 2px solid var(--border-color);
+                border-radius: 12px;
+                padding: 0.5rem;
+                position: relative;
+                cursor: pointer;
+                transition: transform 0.2s, border-color 0.2s;
+                text-align: center;
+            }
+            .p2i-card:hover { transform: translateY(-5px); border-color: #f1c40f; }
+            .p2i-card.selected { border-color: #f1c40f; background: rgba(241, 196, 15, 0.1); }
+            .p2i-card.selected::after {
+                content: '\\f058'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
+                position: absolute; top: 10px; right: 10px; color: #f1c40f; font-size: 1.2rem; background: white; border-radius: 50%;
+            }
+            .p2i-num { background: rgba(255,255,255,0.1); color: var(--text-color); width: 24px; height: 24px; border-radius: 50%; font-size: 0.75rem; 
+                display: flex; align-items: center; justify-content: center; position: absolute; top: 10px; left: 10px; z-index: 5; }
+            .p2i-card.selected .p2i-num { background: #f1c40f; color: #000; }
+            
+            .img-preview-box { width: 100%; aspect-ratio: 1/1.4; background: #fff; border-radius: 4px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+            .img-preview-box canvas { max-width: 100%; max-height: 100%; }
+        </style>
     `;
 
-    const uploadArea = document.getElementById('p2i-upload');
-    const fileInput = document.getElementById('p2i-file-input');
-    const btnSelect = document.getElementById('p2i-btn-select');
-    const fileList = document.getElementById('p2i-file-list');
-    const optionsDiv = document.getElementById('p2i-options');
-    const btnProcess = document.getElementById('btn-process-p2i');
-    const imgContainer = document.getElementById('p2i-images-container');
-    const inputRanges = document.getElementById('p2i-ranges');
-    
+    const elements = {
+        uploadArea: document.getElementById('p2i-upload'),
+        fileInput: document.getElementById('p2i-file-input'),
+        btnSelect: document.getElementById('p2i-btn-select'),
+        workspace: document.getElementById('p2i-workspace'),
+        grid: document.getElementById('p2i-pages-grid'),
+        btnProcess: document.getElementById('btn-process-p2i'),
+        btnClear: document.getElementById('btn-clear-p2i'),
+        btnSelectAll: document.getElementById('btn-select-all-p2i'),
+        fileNameDisplay: document.getElementById('p2i-file-name'),
+        filePageCount: document.getElementById('p2i-page-count'),
+        format: document.getElementById('p2i-format'),
+        dpi: document.getElementById('p2i-dpi'),
+        method: document.getElementById('p2i-method')
+    };
+
     let selectedFile = null;
+    let pdfSource = null;
+    let pagesData = []; // { index, selected, thumbUrl }
 
-    const updateFileList = () => {
-        fileList.innerHTML = '';
-        imgContainer.innerHTML = ''; 
-        if (selectedFile) {
-            uploadArea.style.display = 'none';
-            optionsDiv.style.display = 'block';
-            
-            const item = document.createElement('div');
-            item.className = 'file-item';
-            item.innerHTML = '<div class="file-name"><i class="fa-regular fa-file-pdf" style="color: var(--gold); margin-right: 8px;"></i>' + selectedFile.name + ' <span style="opacity:0.5; font-size: 0.8rem;">(' + window.formatSize(selectedFile.size) + ')</span></div><button class="remove-file" id="p2i-remove-file"><i class="fa-solid fa-times"></i></button>';
-            fileList.appendChild(item);
+    const handleFile = async (file) => {
+        if (!file || file.type !== 'application/pdf') return;
+        selectedFile = file;
 
-            document.getElementById('p2i-remove-file').addEventListener('click', () => {
-                selectedFile = null;
-                uploadArea.style.display = 'block';
-                optionsDiv.style.display = 'none';
-                updateFileList();
-            });
-        } else {
-            optionsDiv.style.display = 'none';
-        }
-    };
+        const pJS = getPDFJS();
+        if (!pJS) return;
 
-    const handleFiles = (files) => {
-        if(files[0] && files[0].type === 'application/pdf') {
-            selectedFile = files[0];
-            updateFileList();
-        } else {
-            window.showToast("Please select a valid PDF file.", "error");
-        }
-    };
-
-    /**
-     * Parses page range strings like "all", "1, 3-5" into an array of 0-based indices.
-     */
-    const parsePageRanges = (text, totalPages) => {
-        const pagesToConvert = new Set();
-        const input = text.toLowerCase().trim();
-        
-        if (input === 'all') {
-            for (let i = 0; i < totalPages; i++) pagesToConvert.add(i);
-            return Array.from(pagesToConvert);
-        }
-
-        const parts = input.split(',');
-        for (let part of parts) {
-            part = part.trim();
-            if (!part) continue;
-            
-            if (part.includes('-')) {
-                const [start, end] = part.split('-').map(Number);
-                if (!isNaN(start) && !isNaN(end) && start <= end) {
-                    for (let i = start; i <= end; i++) {
-                        if (i > 0 && i <= totalPages) pagesToConvert.add(i - 1);
-                    }
-                }
-            } else {
-                const pageNum = Number(part);
-                if (!isNaN(pageNum) && pageNum > 0 && pageNum <= totalPages) {
-                    pagesToConvert.add(pageNum - 1);
-                }
-            }
-        }
-        return Array.from(pagesToConvert).sort((a, b) => a - b);
-    };
-
-    btnSelect.addEventListener('click', () => fileInput.click());
-    fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
-
-    btnProcess.addEventListener('click', async () => {
-        const rangeText = inputRanges.value.trim();
-        if (!rangeText) {
-            window.showToast("Please specify which pages to convert.", "error");
-            return;
-        }
-
-        const originalText = btnProcess.innerHTML;
-        btnProcess.disabled = true;
+        elements.uploadArea.style.display = 'none';
+        elements.workspace.style.display = 'block';
+        elements.grid.innerHTML = '<div style="grid-column: 1/-1; padding: 4rem; text-align: center;"><div class="loader" style="margin: auto; width: 40px; height: 40px; border-top-color: #f1c40f;"></div><p style="margin-top: 1rem;">Loading document...</p></div>';
 
         try {
-            const pJS = getPDFJS();
-            if (!pJS) throw new Error("pdf.js library not loaded.");
-
-            const fileUrl = URL.createObjectURL(selectedFile);
-            const loadingTask = pJS.getDocument(fileUrl);
-            const pdf = await loadingTask.promise;
+            const arrayBuffer = await file.arrayBuffer();
+            pdfSource = await pJS.getDocument({ data: arrayBuffer }).promise;
             
-            const indices = parsePageRanges(rangeText, pdf.numPages);
+            elements.fileNameDisplay.innerText = file.name;
+            elements.filePageCount.innerText = `${pdfSource.numPages} Pages`;
             
-            if (indices.length === 0) {
-                window.showToast("No valid pages found in the specified range.", "error");
-                btnProcess.disabled = false;
-                return;
-            }
+            pagesData = [];
+            elements.grid.innerHTML = '';
 
-            for (let i = 0; i < indices.length; i++) {
-                const idx = indices[i];
-                btnProcess.innerHTML = `<div class="loader"></div> Converting Page ${i + 1}/${indices.length}...`;
-                
-                const page = await pdf.getPage(idx + 1);
-                const scale = 2.0; 
-                const viewport = page.getViewport({ scale: scale });
-
+            for (let i = 1; i <= pdfSource.numPages; i++) {
+                const page = await pdfSource.getPage(i);
+                const viewport = page.getViewport({ scale: 0.3 });
                 const canvas = document.createElement('canvas');
-                const context = canvas.getContext('2d');
-                canvas.height = viewport.height;
+                const ctx = canvas.getContext('2d');
                 canvas.width = viewport.width;
+                canvas.height = viewport.height;
+                await page.render({ canvasContext: ctx, viewport }).promise;
 
-                const renderContext = {
-                    canvasContext: context,
-                    viewport: viewport
+                const pageObj = {
+                    index: i,
+                    selected: i === 1, // Default select first page
+                    thumbUrl: canvas.toDataURL()
                 };
-                
-                await page.render(renderContext).promise;
-                
-                await new Promise((resolve) => {
-                    canvas.toBlob((blob) => {
-                        window.downloadBlob(blob, `PDFLuxe_Page_${idx + 1}.jpg`);
-                        resolve();
-                    }, 'image/jpeg', 0.95);
-                });
-
-                // Small delay to prevent browser download congestion
-                if (indices.length > 1) await new Promise(r => setTimeout(r, 300));
+                pagesData.push(pageObj);
+                const card = createCard(pageObj);
+                elements.grid.appendChild(card);
             }
-            
-            window.showToast(`Successfully converted ${indices.length} page(s)!`, 'success');
-            URL.revokeObjectURL(fileUrl);
-            
-        } catch (error) {
-            console.error(error);
-            window.showToast('Error converting PDF to Image.', 'error');
-        } finally {
-            btnProcess.innerHTML = originalText;
-            btnProcess.disabled = false;
-        }
-    });
-}
 
+        } catch (err) {
+            console.error(err);
+            window.showToast("Critical decoding error.", "error");
+        }
+    };
+
+    const createCard = (pageObj) => {
+        const card = document.createElement('div');
+        card.className = `p2i-card ${pageObj.selected ? 'selected' : ''}`;
+        card.innerHTML = `
+            <div class="p2i-num">${pageObj.index}</div>
+            <div class="img-preview-box">
+                <img src="${pageObj.thumbUrl}" draggable="false">
+            </div>
+        `;
+        card.onclick = () => {
+            pageObj.selected = !pageObj.selected;
+            if (pageObj.selected) card.classList.add('selected');
+            else card.classList.remove('selected');
+        };
+        return card;
+    };
+
+    elements.btnSelect.onclick = () => elements.fileInput.click();
+    elements.fileInput.onchange = (e) => handleFile(e.target.files[0]);
+
+    elements.btnSelectAll.onclick = () => {
+        pagesData.forEach(p => p.selected = true);
+        elements.grid.querySelectorAll('.p2i-card').forEach(c => c.classList.add('selected'));
+    };
+
+    elements.btnClear.onclick = () => {
+        if (confirm("Reset current session?")) {
+            selectedFile = null; pdfSource = null;
+            elements.workspace.style.display = 'none';
+            elements.uploadArea.style.display = 'block';
+            elements.fileInput.value = '';
+        }
+    };
+
+    elements.btnProcess.onclick = async () => {
+        const selectedIndices = pagesData.filter(p => p.selected).map(p => p.index);
+        if (selectedIndices.length === 0) {
+            window.showToast("Please select at least one page.", "error"); return;
+        }
+
+        const originalBtn = elements.btnProcess.innerHTML;
+        elements.btnProcess.innerHTML = '<div class="loader" style="border-top-color: #000;"></div> Processing...';
+        elements.btnProcess.disabled = true;
+
+        try {
+            const format = elements.format.value;
+            const dpiScale = parseFloat(elements.dpi.value);
+            const method = elements.method.value;
+            const extension = format === 'image/jpeg' ? 'jpg' : (format === 'image/png' ? 'png' : 'webp');
+
+            const JSZip = window.JSZip;
+            let zip = method === 'zip' ? new JSZip() : null;
+
+            for (let i = 0; i < selectedIndices.length; i++) {
+                const pageNum = selectedIndices[i];
+                elements.btnProcess.innerHTML = `<div class="loader" style="border-top-color: #000;"></div> Converting Page ${i+1}/${selectedIndices.length}...`;
+                
+                const page = await pdfSource.getPage(pageNum);
+                const viewport = page.getViewport({ scale: dpiScale });
+                const canvas = document.createElement('canvas');
+                canvas.width = viewport.width; canvas.height = viewport.height;
+                const ctx = canvas.getContext('2d');
+                await page.render({ canvasContext: ctx, viewport }).promise;
+
+                const blob = await new Promise(r => canvas.toBlob(r, format, 0.95));
+                const filename = `Studio_Page_${pageNum}.${extension}`;
+
+                if (zip) {
+                    zip.file(filename, blob);
+                } else {
+                    window.downloadBlob(blob, filename, "Studio PDF to Image");
+                    if (selectedIndices.length > 1) await new Promise(r => setTimeout(r, 500));
+                }
+            }
+
+            if (zip) {
+                elements.btnProcess.innerHTML = '<div class="loader" style="border-top-color: #000;"></div> Packaging ZIP...';
+                const zipBlob = await zip.generateAsync({ type: "blob" });
+                window.downloadBlob(zipBlob, `Conversion_Results_${selectedFile.name.split('.')[0]}.zip`, "Studio PDF to Image");
+            }
+
+            window.showToast("Conversion and download complete!", "success");
+
+        } catch (err) {
+            console.error(err);
+            window.showToast("Studio failed: " + err.message, "error");
+        } finally {
+            elements.btnProcess.innerHTML = originalBtn;
+            elements.btnProcess.disabled = false;
+        }
+    };
+}

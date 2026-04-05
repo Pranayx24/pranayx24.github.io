@@ -1,0 +1,19 @@
+{
+  "name": "pdfluxe-backend",
+  "version": "1.0.0",
+  "description": "Serverless backend for PDFLuxe",
+  "main": "api/index.js",
+  "scripts": {
+    "start": "node api/index.js",
+    "dev": "next dev"
+  },
+  "dependencies": {
+    "pdf-lib": "^1.17.1",
+    "docx": "^8.2.2",
+    "pdfjs-dist": "^3.11.174",
+    "formidable": "^3.5.1",
+    "dotenv": "^16.3.1",
+    "sharp": "^0.32.6",
+    "canvas": "^2.11.2"
+  }
+}
