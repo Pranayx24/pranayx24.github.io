@@ -42,8 +42,24 @@ export function renderBatch(container) {
                             <option value="rotate">Rotate all 90° Clockwise</option>
                             <option value="compress">Industrial Compression (Low File Size)</option>
                             <option value="merge">Merge All into One</option>
+                            <option value="watermark">Apply Bulk Watermark</option>
+                            <option value="protect">Apply Bulk Password Protection</option>
+                            <option value="numbers">Apply Bulk Page Numbering</option>
                         </select>
                     </div>
+
+                    <!-- Dynamic Action Settings -->
+                    <div id="batch-settings" style="margin-bottom: 1rem; padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 8px; display: none;">
+                        <div id="setting-watermark" class="batch-setting-item" style="display: none;">
+                            <label style="display: block; font-size: 0.8rem; margin-bottom: 5px;">Watermark Text:</label>
+                            <input type="text" id="input-batch-watermark" placeholder="Confidential, Draft, etc." style="width:100%; padding: 0.8rem; background: #111; color: white; border: 1px solid #333; border-radius: 8px;">
+                        </div>
+                        <div id="setting-protect" class="batch-setting-item" style="display: none;">
+                            <label style="display: block; font-size: 0.8rem; margin-bottom: 5px;">Global Password:</label>
+                            <input type="password" id="input-batch-password" placeholder="Set global password..." style="width:100%; padding: 0.8rem; background: #111; color: white; border: 1px solid #333; border-radius: 8px;">
+                        </div>
+                    </div>
+
                     <button class="btn-primary" id="btn-run-batch" style="background: linear-gradient(135deg, #ff00ff, #7000ff); color: #fff; margin-top: 0.5rem; border:none; box-shadow: 0 0 20px rgba(255, 0, 255, 0.3);">
                         <i class="fa-solid fa-play"></i> Initiate Industrial Batch
                     </button>
@@ -53,11 +69,11 @@ export function renderBatch(container) {
             <!-- Progress Stage -->
             <div id="batch-progress-stage" style="display: none; margin-top: 2rem;">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                    <span id="batch-current-file" style="font-size: 0.9rem; opacity: 0.8;">Processing file 1 of 5...</span>
-                    <span id="batch-percent">20%</span>
+                    <span id="batch-current-file" style="font-size: 0.9rem; opacity: 0.8;">Processing...</span>
+                    <span id="batch-percent">0%</span>
                 </div>
                 <div style="height: 8px; background: #222; border-radius: 4px; overflow: hidden;">
-                    <div id="batch-progress-fill" style="width: 20%; height: 100%; background: #ff00ff; box-shadow: 0 0 10px #ff00ff; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"></div>
+                    <div id="batch-progress-fill" style="width: 0%; height: 100%; background: #ff00ff; box-shadow: 0 0 10px #ff00ff; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"></div>
                 </div>
             </div>
         </div>
@@ -125,9 +141,29 @@ export function renderBatch(container) {
     input.onchange = (e) => handleFiles(e.target.files);
     btnClear.onclick = () => { fileQueue = []; updateQueueUI(); };
 
+    // Dashboard Select logic
+    const actionSelect = document.getElementById('batch-action-select');
+    const settingsPanel = document.getElementById('batch-settings');
+    const watermarkSetting = document.getElementById('setting-watermark');
+    const protectSetting = document.getElementById('setting-protect');
+
+    actionSelect.onchange = () => {
+        settingsPanel.style.display = 'none';
+        watermarkSetting.style.display = 'none';
+        protectSetting.style.display = 'none';
+
+        if (actionSelect.value === 'watermark') {
+            settingsPanel.style.display = 'block';
+            watermarkSetting.style.display = 'block';
+        } else if (actionSelect.value === 'protect') {
+            settingsPanel.style.display = 'block';
+            protectSetting.style.display = 'block';
+        }
+    };
+
     // Batch Actions Processing
     btnRun.onclick = async () => {
-        const action = document.getElementById('batch-action-select').value;
+        const action = actionSelect.value;
         const pLib = getPDFLib();
         if (!pLib || isProcessing) return;
         
@@ -148,11 +184,11 @@ export function renderBatch(container) {
                     const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
                     copiedPages.forEach(p => mergedPdf.addPage(p));
                 }
-                const bytes = await mergedPdf.save();
-                window.downloadBlob(new Blob([bytes], {type: 'application/pdf'}), `Batch_Merged_${Date.now()}.pdf`, "Batch Power-Station");
+                const finalBytes = await mergedPdf.save();
+                window.downloadBlob(new Blob([finalBytes], {type: 'application/pdf'}), `Batch_Merged_${Date.now()}.pdf`, "Batch Power-Station");
                 
             } else {
-                // Individual process & zip/download individually logic
+                // Individual process
                 for (let i = 0; i < fileQueue.length; i++) {
                     const file = fileQueue[i];
                     const percent = Math.round(((i + 1) / fileQueue.length) * 100);
@@ -161,18 +197,41 @@ export function renderBatch(container) {
                     document.getElementById('batch-progress-fill').style.width = `${percent}%`;
 
                     const bytes = await file.arrayBuffer();
-                    const pdf = await pLib.PDFDocument.load(bytes);
+                    let finalBytes;
 
-                    if (action === 'rotate') {
+                    if (action === 'protect') {
+                        const pass = document.getElementById('input-batch-password').value;
+                        if (!pass) throw new Error("A global password is required for Batch Protect.");
+                        const { protectPDF } = await import('../pdf-engine.js');
+                        finalBytes = await protectPDF(file, pass);
+                    } else {
+                        const pdf = await pLib.PDFDocument.load(bytes);
                         const pages = pdf.getPages();
-                        pages.forEach(p => p.setRotation(pLib.degrees((p.getRotation().angle + 90) % 360)));
-                    } else if (action === 'compress') {
-                        // High-speed compression by stripping unused objects
-                        // Native pdf-lib doesn't have heavy image compression without third party,
-                        // so we do "cleaning and re-saving" which often reduces size of cluttered PDFs.
+
+                        if (action === 'rotate') {
+                            pages.forEach(p => p.setRotation(pLib.degrees((p.getRotation().angle + 90) % 360)));
+                        } else if (action === 'watermark') {
+                            const text = document.getElementById('input-batch-watermark').value || "PDF LUXE";
+                            const font = await pdf.embedFont(pLib.StandardFonts.HelveticaBold);
+                            pages.forEach(p => {
+                                const { width, height } = p.getSize();
+                                p.drawText(text, {
+                                    x: width / 2 - 100, y: height / 2, size: 50, font, 
+                                    color: pLib.rgb(0.8, 0, 0), opacity: 0.2, rotate: pLib.degrees(45)
+                                });
+                            });
+                        } else if (action === 'numbers') {
+                            const font = await pdf.embedFont(pLib.StandardFonts.Helvetica);
+                            pages.forEach((p, idx) => {
+                                const { width } = p.getSize();
+                                p.drawText(`Page ${idx+1} of ${pages.length}`, {
+                                    x: width / 2 - 20, y: 20, size: 10, font, color: pLib.rgb(0.5, 0.5, 0.5)
+                                });
+                            });
+                        }
+                        finalBytes = await pdf.save();
                     }
 
-                    const finalBytes = await pdf.save();
                     window.downloadBlob(new Blob([finalBytes], {type: 'application/pdf'}), `Processed_${file.name}`, "Batch Power-Station");
                 }
             }
