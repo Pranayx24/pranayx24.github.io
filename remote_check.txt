@@ -1,2 +1,0 @@
-﻿origin	https://github.com/Pranayx24/pranayx24.github.io (fetch)
-origin	https://github.com/Pranayx24/pranayx24.github.io (push)

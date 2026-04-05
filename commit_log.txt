@@ -1,1 +1,0 @@
-fatal: paths 'v22.1 ...' with -a does not make sense

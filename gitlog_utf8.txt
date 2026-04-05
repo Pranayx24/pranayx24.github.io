@@ -1,5 +1,0 @@
-﻿335a511 Scanner Upgrade: Premium UI and Auto-Flash
-087c08e v22.1 overhaul
-1252d45 ULTIMATE ADOBE REPLICA v22.0: Blue Glow, Centered HUD, and Floating Gallery
-36b1443 MASTER PREVIEW RESTORE v21.0: Fixed missing gallery rendering bug
-957c3f7 INDUSTRIAL RELEASE v20.0: Full-Screen Editor and Top-Centered Magnifier

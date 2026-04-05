@@ -1,1 +1,0 @@
-﻿87fe9c0 Upgrade: Scan to PDF with smart document detection and perspective correction
