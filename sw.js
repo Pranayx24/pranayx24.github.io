@@ -5,7 +5,8 @@ const ASSETS = [
     './css/style.css',
     './js/main.js',
     './js/db.js',
-    './js/theme.js'
+    './js/theme.js',
+    './favicon.png'
 ];
 
 self.addEventListener('install', event => {
