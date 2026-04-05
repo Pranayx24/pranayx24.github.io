@@ -84,33 +84,43 @@ export async function renderRedact(container) {
                 const viewport = jsPage.getViewport({ scale: 1 });
 
                 textContent.items.forEach(item => {
+                    if (!item.str) return;
                     const str = item.str.toLowerCase();
+                    
                     if (keywords.some(k => str.includes(k))) {
-                        // Mask entire text bounding box
-                        const [m0, m1, m2, m3, tx, ty] = item.transform;
-                        // Transform coordinates from PDF.js to pdf-lib (Y is flipped)
-                        const x = tx;
-                        const y = ty;
-                        const width = item.width * (viewport.scale);
-                        const height = item.height || 10; // estimate logic
-                        
-                        pageDoc.drawRectangle({
-                            x: x,
-                            y: y,
-                            width: width,
-                            height: height,
-                            color: pLib.rgb(0, 0, 0)
-                        });
+                        try {
+                            const [m0, m1, m2, m3, tx, ty] = item.transform;
+                            
+                            // Defensive coordinate and dimension arithmetic
+                            const x = Number(tx) || 0;
+                            const y = Number(ty) || 0;
+                            const width = (Number(item.width) || (str.length * 8)) * (viewport.scale || 1);
+                            const height = (Number(item.height) || Math.abs(m3) || 12) * (viewport.scale || 1);
+                            
+                            if (isNaN(x) || isNaN(y) || isNaN(width) || isNaN(height)) return;
+
+                            pageDoc.drawRectangle({
+                                x: x,
+                                y: y,
+                                width: width,
+                                height: height,
+                                color: pLib.rgb(0, 0, 0)
+                            });
+                        } catch (itemErr) {
+                            console.warn("Could not redact item:", item, itemErr);
+                        }
                     }
                 });
             }
 
             if (document.getElementById('strip-metadata').checked) {
-                pdfDoc.setTitle('');
-                pdfDoc.setAuthor('');
-                pdfDoc.setCreator('');
-                pdfDoc.setProducer('');
-                pdfDoc.setKeywords([]);
+                try {
+                    pdfDoc.setTitle('');
+                    pdfDoc.setAuthor('');
+                    pdfDoc.setCreator('');
+                    pdfDoc.setProducer('');
+                    pdfDoc.setKeywords([]);
+                } catch (metaErr) { console.warn("Metadata strip failed", metaErr); }
             }
 
             const finalBytes = await pdfDoc.save();
@@ -120,8 +130,8 @@ export async function renderRedact(container) {
             uploadArea.style.display = 'block';
             interfaceArea.style.display = 'none';
         } catch (err) {
-            console.error(err);
-            window.showToast("Redaction failed.", "error");
+            console.error("Industrial Redaction Error:", err);
+            window.showToast("Redaction failed: " + (err.message || "Internal Engine Error"), "error");
         } finally {
             btnRun.disabled = false;
             btnRun.innerText = "Apply Permanent Redaction";
