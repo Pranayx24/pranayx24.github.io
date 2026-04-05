@@ -26,8 +26,8 @@ export function renderSign(container) {
                         <div class="glass-card preview-container" style="position: relative; overflow: auto; padding: 1.5rem; height: calc(100vh - 250px); min-height: 500px; display: flex; justify-content: center; background: #000; border: 1px solid rgba(255,215,0,0.1);">
                             <div id="pdf-container" style="position: relative; display: inline-block; vertical-align: top;">
                                 <canvas id="pdf-render-canvas" style="box-shadow: 0 0 40px rgba(0,0,0,0.6);"></canvas>
-                                <div id="signature-placeholder" style="position: absolute; border: 2px dashed var(--gold); background: rgba(212, 175, 55, 0.2); cursor: move; display: none; z-index: 10;">
-                                    <div class="resize-handle" style="position: absolute; right: -6px; bottom: -6px; width: 12px; height: 12px; background: var(--gold); cursor: nwse-resize; border-radius: 2px; border: 2px solid #fff;"></div>
+                                <div id="signature-placeholder" style="position: absolute; border: 2px dashed var(--gold); background: rgba(212, 175, 55, 0.2); cursor: move; display: none; z-index: 10; touch-action: none;">
+                                    <div class="resize-handle" style="position: absolute; right: -6px; bottom: -6px; width: 12px; height: 12px; background: var(--gold); cursor: nwse-resize; border-radius: 2px; border: 2px solid #fff; touch-action: none;"></div>
                                 </div>
                             </div>
                         </div>
@@ -244,7 +244,7 @@ export function renderSign(container) {
         startY = clientY;
         startW = placeholderPos.w;
         startH = placeholderPos.h;
-        if (e.type === 'touchstart') e.preventDefault(); // Prevent scrolling while dragging
+        // e.preventDefault(); // Moved out to individual listeners for better stability
     };
 
     const moveDrag = (e) => {
@@ -273,7 +273,8 @@ export function renderSign(container) {
             placeholderPos.h = Math.max(20, startH + dy);
             updatePlaceholderStyles();
         }
-        if (e.type === 'touchmove') e.preventDefault(); // Lock screen on mobile
+        
+        if (e.cancelable) e.preventDefault();
     };
 
     const stopDrag = () => {
@@ -282,7 +283,10 @@ export function renderSign(container) {
     };
 
     sigPlaceholder.addEventListener('mousedown', startDrag);
-    sigPlaceholder.addEventListener('touchstart', startDrag, { passive: false });
+    sigPlaceholder.addEventListener('touchstart', (e) => {
+        startDrag(e);
+        if (e.cancelable) e.preventDefault();
+    }, { passive: false });
 
     window.addEventListener('mousemove', moveDrag);
     window.addEventListener('touchmove', moveDrag, { passive: false });
