@@ -106,6 +106,21 @@ export async function renderHome(container) {
                 <h3>Crop PDF</h3>
                 <p>Trim the edges and adjust margins of your PDF.</p>
             </a>
+            <a href="#batch" class="tool-card highlight-card" style="animation-delay: 1.8s">
+                <i class="fa-solid fa-bolt-lightning tool-icon" style="color: #ff00ff;"></i>
+                <h3>Batch Power-Station</h3>
+                <p>Queue and process dozens of files in a single high-speed batch.</p>
+            </a>
+            <a href="#pdf-to-excel" class="tool-card" style="animation-delay: 1.9s">
+                <i class="fa-solid fa-file-excel tool-icon" style="color: #27ae60;"></i>
+                <h3>PDF to Excel</h3>
+                <p>Recover tables and data from PDFs into editable XLSX spreadsheets.</p>
+            </a>
+            <a href="#redact" class="tool-card" style="animation-delay: 2.0s">
+                <i class="fa-solid fa-eraser tool-icon" style="color: #e74c3c;"></i>
+                <h3>Redact PDF</h3>
+                <p>Permanently remove sensitive text and metadata from documents.</p>
+            </a>
         </section>
     `;
 

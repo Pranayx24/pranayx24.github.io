@@ -22,6 +22,9 @@ import { renderRepair } from './views/repair.js';
 import { renderPdfToText } from './views/pdf-to-text.js';
 import { renderCrop } from './views/crop.js';
 import { renderScanToPdf } from './views/scan-ultra.js?v=20.0';
+import { renderBatch } from './views/batch.js';
+import { renderPdfToExcel } from './views/pdf-to-excel.js';
+import { renderRedact } from './views/redact.js';
 
 // Simple Hash Router for SPA
 const routes = {
@@ -45,6 +48,9 @@ const routes = {
     '#pdf-to-text': renderPdfToText,
     '#crop': renderCrop,
     '#scan-to-pdf': renderScanToPdf,
+    '#batch': renderBatch,
+    '#pdf-to-excel': renderPdfToExcel,
+    '#redact': renderRedact,
     '#about': renderAbout,
     '#privacy': renderPrivacy,
     '#contact': renderContact
