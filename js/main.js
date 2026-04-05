@@ -27,6 +27,8 @@ import { renderPdfToExcel } from './views/pdf-to-excel.js';
 import { renderRedact } from './views/redact.js';
 import { renderCompare } from './views/compare.js';
 import { renderMetadata } from './views/metadata.js';
+import { renderGrayscale } from './views/grayscale.js';
+import { renderPdfToMd } from './views/pdf-to-md.js';
 
 // Simple Hash Router for SPA
 const routes = {
@@ -55,6 +57,8 @@ const routes = {
     '#redact': renderRedact,
     '#compare': renderCompare,
     '#metadata': renderMetadata,
+    '#grayscale': renderGrayscale,
+    '#pdf-to-md': renderPdfToMd,
     '#about': renderAbout,
     '#privacy': renderPrivacy,
     '#contact': renderContact

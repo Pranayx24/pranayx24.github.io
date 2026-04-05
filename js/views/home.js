@@ -131,6 +131,16 @@ export async function renderHome(container) {
                 <h3>Identity Editor</h3>
                 <p>Edit hidden document properties like Author and Copyright dates.</p>
             </a>
+            <a href="#grayscale" class="tool-card" style="animation-delay: 2.3s">
+                <i class="fa-solid fa-droplet-slash tool-icon" style="color: #95a5a6;"></i>
+                <h3>Print-Prep Grayscale</h3>
+                <p>Convert your color PDF to high-contrast grayscale to save ink and prep for printing.</p>
+            </a>
+            <a href="#pdf-to-md" class="tool-card" style="animation-delay: 2.4s">
+                <i class="fa-brands fa-markdown tool-icon" style="color: #58a6ff;"></i>
+                <h3>AI-Ready Markdown</h3>
+                <p>Export your document into clean Markdown (.md) for AI prompts and documentation.</p>
+            </a>
         </section>
     `;
 
