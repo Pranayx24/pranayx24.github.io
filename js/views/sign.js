@@ -18,16 +18,16 @@ export function renderSign(container) {
                 <button class="upload-btn" id="sign-btn-select">Select Document</button>
             </div>
             
-            <div id="sign-workspace" style="display: none; margin-top: 2rem;">
-                <div class="sign-grid" style="display: grid; grid-template-columns: 1fr 350px; gap: 2rem; align-items: start;">
+            <div id="sign-workspace" style="display: none; margin-top: 1rem;">
+                <div class="sign-grid">
                     
                     <!-- Left: Interactive Preview -->
                     <div class="preview-column">
-                        <div class="glass-card preview-container" style="position: relative; overflow: auto; padding: 1rem; min-height: 500px; display: flex; justify-content: center; background: #000;">
-                            <div id="pdf-container" style="position: relative; display: inline-block;">
-                                <canvas id="pdf-render-canvas"></canvas>
+                        <div class="glass-card preview-container" style="position: relative; overflow: auto; padding: 1.5rem; height: calc(100vh - 250px); min-height: 500px; display: flex; justify-content: center; background: #000; border: 1px solid rgba(255,215,0,0.1);">
+                            <div id="pdf-container" style="position: relative; display: inline-block; vertical-align: top;">
+                                <canvas id="pdf-render-canvas" style="box-shadow: 0 0 40px rgba(0,0,0,0.6);"></canvas>
                                 <div id="signature-placeholder" style="position: absolute; border: 2px dashed var(--gold); background: rgba(212, 175, 55, 0.2); cursor: move; display: none; z-index: 10;">
-                                    <div class="resize-handle" style="position: absolute; right: -5px; bottom: -5px; width: 10px; height: 10px; background: var(--gold); cursor: nwse-resize;"></div>
+                                    <div class="resize-handle" style="position: absolute; right: -6px; bottom: -6px; width: 12px; height: 12px; background: var(--gold); cursor: nwse-resize; border-radius: 2px; border: 2px solid #fff;"></div>
                                 </div>
                             </div>
                         </div>
@@ -89,6 +89,11 @@ export function renderSign(container) {
         </div>
 
         <style>
+            .sign-grid { display: grid; grid-template-columns: 1fr 350px; gap: 2rem; align-items: start; }
+            @media (max-width: 1100px) {
+                .sign-grid { grid-template-columns: 1fr; }
+                .preview-container { height: 60vh !important; }
+            }
             .tabs-minimal { display: flex; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 0.5rem; }
             .tab-btn-min { flex: 1; padding: 0.7rem; background: none; border: none; color: #fff; opacity: 0.5; cursor: pointer; font-size: 0.9rem; transition: 0.3s; }
             .tab-btn-min.active { opacity: 1; border-bottom: 2px solid var(--gold); }
@@ -187,7 +192,13 @@ export function renderSign(container) {
     // --- PDF Rendering ---
     const renderPage = async (num) => {
         const page = await pdfDoc.getPage(num);
-        const viewport = page.getViewport({ scale: 1.5 });
+        
+        // Dynamic scaling to fit container
+        const containerWidth = document.querySelector('.preview-container').clientWidth - 40;
+        const unscaledViewport = page.getViewport({ scale: 1.0 });
+        const dynamicScale = Math.min(containerWidth / unscaledViewport.width, 1.2); // Cap at 1.2 for clarity
+
+        const viewport = page.getViewport({ scale: dynamicScale });
         pdfCanvas.height = viewport.height;
         pdfCanvas.width = viewport.width;
 
@@ -196,6 +207,10 @@ export function renderSign(container) {
         
         document.getElementById('current-page').textContent = num;
         sigPlaceholder.style.display = 'block';
+        
+        // Store current scale for coordinate calc
+        pdfCanvas.dataset.currentScale = dynamicScale;
+        
         resetPlaceholder();
     };
 
@@ -337,8 +352,8 @@ export function renderSign(container) {
             btnProcess.disabled = true;
 
             // Calculate PDF coordinates
-            // pdfCanvas is at scale 1.5. pdf coordinates are at scale 1.0.
-            const scale = 1.5;
+            // pdfCanvas is at currentScale. pdf coordinates are at scale 1.0.
+            const scale = parseFloat(pdfCanvas.dataset.currentScale) || 1.0;
             const pdfX = placeholderPos.x / scale;
             const pdfW = placeholderPos.w / scale;
             const pdfH = placeholderPos.h / scale;
