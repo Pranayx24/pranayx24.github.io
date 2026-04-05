@@ -52,6 +52,11 @@ export async function renderHome(container) {
                         <h3>Image to PDF</h3>
                         <p>Turn your images into a single PDF document.</p>
                     </a>
+                    <a href="#scan-to-pdf" class="tool-card">
+                        <i class="fa-solid fa-camera tool-icon"></i>
+                        <h3>Scan to PDF</h3>
+                        <p>Use your camera to scan documents and create PDFs instantly.</p>
+                    </a>
                 </div>
             </section>
 
@@ -167,11 +172,6 @@ export async function renderHome(container) {
             <section class="tool-section">
                 <h2 class="category-title"><i class="fa-solid fa-brain"></i> Smart / AI Tools</h2>
                 <div class="tool-grid">
-                    <a href="#scan-to-pdf" class="tool-card">
-                        <i class="fa-solid fa-camera tool-icon"></i>
-                        <h3>Scan to PDF</h3>
-                        <p>Use your camera to scan documents and create PDFs instantly.</p>
-                    </a>
                     <a href="#ai-tools" class="tool-card highlight-card">
                         <i class="fa-solid fa-comments tool-icon" style="color: #00ffcc;"></i>
                         <h3>Chat with PDF</h3>
