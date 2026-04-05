@@ -1,4 +1,4 @@
-import { STORES, getAll, removeItem } from '../db.js';
+import { STORES, getAll, removeItem, clearStore } from '../db.js';
 
 export async function renderHome(container) {
     container.innerHTML = `
@@ -142,6 +142,19 @@ export async function renderHome(container) {
                 `;
                 historyList.appendChild(card);
             });
+        }
+        
+        // Fix: Active the Clear Button
+        const clearBtn = document.getElementById('btn-clear-history');
+        if (clearBtn) {
+            clearBtn.onclick = async () => {
+                const confirmed = confirm("Are you sure you want to clear your local activity history?");
+                if (confirmed) {
+                    await clearStore(STORES.FILE_HISTORY);
+                    historySection.style.display = 'none';
+                    window.showToast("Local history wiped.", "info");
+                }
+            };
         }
     } catch (e) { console.error("History load error:", e); }
 }
