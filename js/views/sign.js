@@ -226,32 +226,40 @@ export function renderSign(container) {
         sigPlaceholder.style.height = placeholderPos.h + 'px';
     };
 
-    // --- Drag and Drop Placement ---
+    // --- Drag and Drop Placement (Mouse + Touch) ---
     let isDragging = false;
     let isResizing = false;
     let startX, startY, startW, startH;
 
-    sigPlaceholder.addEventListener('mousedown', (e) => {
+    const startDrag = (e) => {
+        const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+        const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+        
         if (e.target.classList.contains('resize-handle')) {
             isResizing = true;
         } else {
             isDragging = true;
         }
-        startX = e.clientX;
-        startY = e.clientY;
+        startX = clientX;
+        startY = clientY;
         startW = placeholderPos.w;
         startH = placeholderPos.h;
-        e.preventDefault();
-    });
+        if (e.type === 'touchstart') e.preventDefault(); // Prevent scrolling while dragging
+    };
 
-    window.addEventListener('mousemove', (e) => {
+    const moveDrag = (e) => {
+        if (!isDragging && !isResizing) return;
+        
+        const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+        const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+
         if (isDragging) {
-            const dx = e.clientX - startX;
-            const dy = e.clientY - startY;
+            const dx = clientX - startX;
+            const dy = clientY - startY;
             placeholderPos.x += dx;
             placeholderPos.y += dy;
-            startX = e.clientX;
-            startY = e.clientY;
+            startX = clientX;
+            startY = clientY;
             
             // Constrain to canvas
             placeholderPos.x = Math.max(0, Math.min(pdfCanvas.width - placeholderPos.w, placeholderPos.x));
@@ -259,18 +267,28 @@ export function renderSign(container) {
             
             updatePlaceholderStyles();
         } else if (isResizing) {
-            const dx = e.clientX - startX;
-            const dy = e.clientY - startY;
+            const dx = clientX - startX;
+            const dy = clientY - startY;
             placeholderPos.w = Math.max(50, startW + dx);
             placeholderPos.h = Math.max(20, startH + dy);
             updatePlaceholderStyles();
         }
-    });
+        if (e.type === 'touchmove') e.preventDefault(); // Lock screen on mobile
+    };
 
-    window.addEventListener('mouseup', () => {
+    const stopDrag = () => {
         isDragging = false;
         isResizing = false;
-    });
+    };
+
+    sigPlaceholder.addEventListener('mousedown', startDrag);
+    sigPlaceholder.addEventListener('touchstart', startDrag, { passive: false });
+
+    window.addEventListener('mousemove', moveDrag);
+    window.addEventListener('touchmove', moveDrag, { passive: false });
+
+    window.addEventListener('mouseup', stopDrag);
+    window.addEventListener('touchend', stopDrag);
 
     // --- File Handling ---
     const handleFile = async (file) => {
