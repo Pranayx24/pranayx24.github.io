@@ -69,7 +69,7 @@ export async function renderHome(container) {
                         <h3>PDF to Word</h3>
                         <p>Extract text from your PDFs into editable Word documents.</p>
                     </a>
-                    <a href="#pdf-to-excel" class="tool-card">
+                    <a href="pdf-to-excel.html" class="tool-card">
                         <i class="fa-solid fa-file-excel tool-icon" style="color: #27ae60;"></i>
                         <h3>PDF to Excel</h3>
                         <p>Recover tables and data from PDFs into editable XLSX spreadsheets.</p>
@@ -79,7 +79,7 @@ export async function renderHome(container) {
                         <h3>PDF to Text</h3>
                         <p>Export all text from your PDF into a plain text file.</p>
                     </a>
-                    <a href="#pdf-to-md" class="tool-card">
+                    <a href="pdf-to-md.html" class="tool-card">
                         <i class="fa-brands fa-markdown tool-icon" style="color: #58a6ff;"></i>
                         <h3>AI-Ready Markdown</h3>
                         <p>Export your document into clean Markdown (.md) for AI prompts.</p>
@@ -133,7 +133,7 @@ export async function renderHome(container) {
                         <h3>Unlock PDF</h3>
                         <p>Remove passwords and security from protected PDFs.</p>
                     </a>
-                    <a href="#redact" class="tool-card">
+                    <a href="redact-pdf.html" class="tool-card">
                         <i class="fa-solid fa-eraser tool-icon" style="color: #e74c3c;"></i>
                         <h3>Redact PDF</h3>
                         <p>Permanently remove sensitive text and metadata.</p>
@@ -155,12 +155,12 @@ export async function renderHome(container) {
                         <h3>Repair PDF</h3>
                         <p>Fix corrupted or damaged PDF files with one click.</p>
                     </a>
-                    <a href="#metadata" class="tool-card">
+                    <a href="metadata-pdf.html" class="tool-card">
                         <i class="fa-solid fa-address-card tool-icon" style="color: #f1c40f;"></i>
                         <h3>Identity Editor</h3>
                         <p>Edit hidden document properties like Author and Copyright.</p>
                     </a>
-                    <a href="#compare" class="tool-card">
+                    <a href="compare-pdf.html" class="tool-card">
                         <i class="fa-solid fa-scale-balanced tool-icon" style="color: #3498db;"></i>
                         <h3>Legal Compare</h3>
                         <p>Detect additions and deletions between two different PDF versions.</p>
@@ -177,12 +177,12 @@ export async function renderHome(container) {
                         <h3>Chat with PDF</h3>
                         <p>Ask questions and extract insights from your PDF using AI.</p>
                     </a>
-                    <a href="#batch" class="tool-card highlight-card">
+                    <a href="batch-pdf.html" class="tool-card highlight-card">
                         <i class="fa-solid fa-bolt-lightning tool-icon" style="color: #ff00ff;"></i>
                         <h3>Batch Power-Station</h3>
                         <p>Queue and process dozens of files in a single high-speed batch.</p>
                     </a>
-                    <a href="#grayscale" class="tool-card">
+                    <a href="grayscale-pdf.html" class="tool-card">
                         <i class="fa-solid fa-droplet-slash tool-icon" style="color: #95a5a6;"></i>
                         <h3>Print-Prep Grayscale</h3>
                         <p>Convert your color PDF to high-contrast grayscale to save ink.</p>

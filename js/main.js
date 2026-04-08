@@ -231,6 +231,13 @@ function initApp() {
         else if (tool === 'pdf-to-text' && routes['#pdf-to-text']) routes['#pdf-to-text'](standaloneContainer);
         else if (tool === 'crop' && routes['#crop']) routes['#crop'](standaloneContainer);
         else if (tool === 'ai' && routes['#ai-tools']) routes['#ai-tools'](standaloneContainer);
+        else if (tool === 'pdf-to-excel' && routes['#pdf-to-excel']) routes['#pdf-to-excel'](standaloneContainer);
+        else if (tool === 'pdf-to-md' && routes['#pdf-to-md']) routes['#pdf-to-md'](standaloneContainer);
+        else if (tool === 'redact' && routes['#redact']) routes['#redact'](standaloneContainer);
+        else if (tool === 'metadata' && routes['#metadata']) routes['#metadata'](standaloneContainer);
+        else if (tool === 'compare' && routes['#compare']) routes['#compare'](standaloneContainer);
+        else if (tool === 'batch' && routes['#batch']) routes['#batch'](standaloneContainer);
+        else if (tool === 'grayscale' && routes['#grayscale']) routes['#grayscale'](standaloneContainer);
     } else if (document.getElementById('app-content')) {
         router();
     }
