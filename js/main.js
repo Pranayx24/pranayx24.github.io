@@ -68,6 +68,8 @@ function router() {
     const currentHash = window.location.hash || '#home';
     const contentDiv = document.getElementById('app-content');
     
+    if (!contentDiv) return; // Prevent crash on standalone pages
+    
     // Fade out current content
     contentDiv.style.opacity = 0;
     
@@ -189,20 +191,49 @@ if ('scrollRestoration' in history) {
     history.scrollRestoration = 'manual';
 }
 
-window.addEventListener('hashchange', router);
+if (document.getElementById('app-content')) {
+    window.addEventListener('hashchange', router);
+}
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         initTheme();
         initUpgradeModal();
         initOLEDGlow();
-        router();
+        initApp();
     });
 } else {
     initTheme();
     initUpgradeModal();
     initOLEDGlow();
-    router();
+    initApp();
+}
+
+function initApp() {
+    const standaloneContainer = document.getElementById('standalone-tool-container');
+    if (standaloneContainer) {
+        const tool = standaloneContainer.dataset.tool;
+        if (tool === 'merge' && routes['#merge']) routes['#merge'](standaloneContainer);
+        else if (tool === 'split' && routes['#split']) routes['#split'](standaloneContainer);
+        else if (tool === 'compress' && routes['#compress']) routes['#compress'](standaloneContainer);
+        else if (tool === 'pdf-to-image' && routes['#pdf-to-img']) routes['#pdf-to-img'](standaloneContainer);
+        else if (tool === 'image-to-pdf' && routes['#img-to-pdf']) routes['#img-to-pdf'](standaloneContainer);
+        else if (tool === 'scan-to-pdf' && routes['#scan-to-pdf']) routes['#scan-to-pdf'](standaloneContainer);
+        else if (tool === 'rotate' && routes['#rotate']) routes['#rotate'](standaloneContainer);
+        else if (tool === 'watermark' && routes['#watermark']) routes['#watermark'](standaloneContainer);
+        else if (tool === 'pdf-to-word' && routes['#pdf-to-word']) routes['#pdf-to-word'](standaloneContainer);
+        else if (tool === 'protect' && routes['#protect']) routes['#protect'](standaloneContainer);
+        else if (tool === 'unlock' && routes['#unlock']) routes['#unlock'](standaloneContainer);
+        else if (tool === 'page-numbers' && routes['#page-numbers']) routes['#page-numbers'](standaloneContainer);
+        else if (tool === 'organize' && routes['#organize']) routes['#organize'](standaloneContainer);
+        else if (tool === 'sign' && routes['#sign']) routes['#sign'](standaloneContainer);
+        else if (tool === 'repair' && routes['#repair']) routes['#repair'](standaloneContainer);
+        else if (tool === 'pdf-to-text' && routes['#pdf-to-text']) routes['#pdf-to-text'](standaloneContainer);
+        else if (tool === 'crop' && routes['#crop']) routes['#crop'](standaloneContainer);
+        else if (tool === 'ai' && routes['#ai-tools']) routes['#ai-tools'](standaloneContainer);
+    } else if (document.getElementById('app-content')) {
+        router();
+    }
 }
 
 /**

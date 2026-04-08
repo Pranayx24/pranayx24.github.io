@@ -23,6 +23,17 @@
     
     <!-- CSS -->
     <link rel="stylesheet" href="css/style.css">
+    <!-- PDF libs -->
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+    <script src="https://cdn.jsdelivr.net/npm/@techstark/opencv-js@4.9.0-release.3/dist/opencv.js"></script>
+    <script src="https://unpkg.com/docx@8.2.3/build/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
 
@@ -36,7 +47,7 @@
         <div class="nav-links">
             <a href="index.html#home">All Tools</a>
             <a href="ai-pdf.html">AI Tools <span class="badge">PRO</span></a>
-            <a href="index.html#about">About</a>
+            <a href="about-us.html">About</a>
         </div>
 
         <div class="nav-actions">
@@ -82,11 +93,7 @@
             <h2>💎 Why choose PDFLuxe</h2>
             <p>While other converters force you to risk your privacy by uploading personal photos to cloud storage, PDFLuxe processes everything locally inside your browser. No registration, no ads, and total security. Experience a premium toolset designed to put your privacy first, regardless of how many files you convert.</p>
 
-            <div style="text-align: center; margin-top: 3rem;">
-                <a href="index.html#img-to-pdf" class="btn-primary" style="text-decoration: none; display: inline-flex; width: auto; padding: 1rem 3rem;">
-                    Use Image Tool Now <i class="fa-solid fa-arrow-right"></i>
-                </a>
-            </div>
+            <div id="standalone-tool-container" data-tool="image-to-pdf" style="margin-top: 3rem;"></div>
         </div>
     </main>
 
@@ -118,16 +125,19 @@
                 <a href="crop-pdf.html">Crop PDF</a> &bull;
                 <a href="ai-pdf.html">Chat with PDF</a>
             </div>
-            <div>
-                <a href="index.html#about">About</a>
-                <a href="index.html#contact">Contact</a>
-                <a href="index.html#privacy">Privacy Policy</a>
+            <div class="legal-links" style="display:flex; flex-wrap:wrap; gap:1rem; justify-content:center;">
+                <a href="about-us.html">About</a>
+                <a href="contact.html">Contact</a>
+                <a href="privacy-policy.html">Privacy Policy</a>
+                <a href="terms-of-service.html">Terms of Service</a>
             </div>
         </div>
         <p>&copy; 2026 PDFLuxe. All rights reserved.</p>
     </footer>
 
     <!-- Theme Script -->
-    <script src="js/theme.js" type="module"></script>
+    <script src="js/main.js?v=21.0" type="module"></script>
+    <!-- TOAST CONTAINER -->
+    <div id="toast-container"></div>
 </body>
 </html>
