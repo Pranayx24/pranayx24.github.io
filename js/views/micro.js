@@ -4,7 +4,7 @@ export function renderMicro(container) {
     container.innerHTML = `
         <div class="workspace" style="max-width: 800px; margin: auto;">
             <div class="tool-header">
-                <i class="fa-solid fa-compress tool-header-icon" style="color: #f39c12;"></i>
+                <i class="fa-solid fa-table-cells-large tool-header-icon" style="color: #f39c12;"></i>
                 <h2>Micro PDF Builder</h2>
                 <p>Shrink multiple pages onto a single sheet (N-Up printing layout).</p>
             </div>

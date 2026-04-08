@@ -117,7 +117,7 @@ export async function renderHome(container) {
                         <p>Stamp an image or text over your PDF in seconds.</p>
                     </a>
                     <a href="micro-pdf.html" class="tool-card">
-                        <i class="fa-solid fa-compress tool-icon" style="color: #f39c12;"></i>
+                        <i class="fa-solid fa-table-cells-large tool-icon" style="color: #f39c12;"></i>
                         <h3>Micro PDF</h3>
                         <p>Shrink multiple pages onto a single sheet (N-Up 1/2, 1/4, 1/9, 1/12).</p>
                     </a>
