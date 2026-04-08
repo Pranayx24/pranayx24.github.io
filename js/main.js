@@ -29,7 +29,7 @@ import { renderCompare } from './views/compare.js';
 import { renderMetadata } from './views/metadata.js';
 import { renderGrayscale } from './views/grayscale.js';
 import { renderPdfToMd } from './views/pdf-to-md.js';
-
+import { renderMicro } from './views/micro.js';
 // Simple Hash Router for SPA
 const routes = {
     '': renderHome,
@@ -59,6 +59,7 @@ const routes = {
     '#metadata': renderMetadata,
     '#grayscale': renderGrayscale,
     '#pdf-to-md': renderPdfToMd,
+    '#micro': renderMicro,
     '#about': renderAbout,
     '#privacy': renderPrivacy,
     '#contact': renderContact
@@ -238,6 +239,7 @@ function initApp() {
         else if (tool === 'compare' && routes['#compare']) routes['#compare'](standaloneContainer);
         else if (tool === 'batch' && routes['#batch']) routes['#batch'](standaloneContainer);
         else if (tool === 'grayscale' && routes['#grayscale']) routes['#grayscale'](standaloneContainer);
+        else if (tool === 'micro' && routes['#micro']) routes['#micro'](standaloneContainer);
     } else if (document.getElementById('app-content')) {
         router();
     }
