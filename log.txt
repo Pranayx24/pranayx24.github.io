@@ -1,0 +1,5 @@
+commit 2c0f2618bbdc73544ffe4baede6099f0ff0f8aaf
+Author: Pranayx24 <pranayyegireddy2004@gmail.com>
+Date:   Thu Apr 9 03:53:17 2026 +0530
+
+    Massive SEO Upgrade part 1: Restructured HTML template, added long form SEO styles, and upgraded merge-pdf.html with 1000 words of unique premium content.
