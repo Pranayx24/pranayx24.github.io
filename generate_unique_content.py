@@ -8,7 +8,8 @@ TOOLS_DATA = {
         'faq1_q': 'Will merging reduce the quality of my PDFs?',
         'faq1_a': 'No. Our local processing engine performs a lossless merge, ensuring all text, images, and formatting remain exactly as they were in the original files.',
         'faq2_q': 'Can I reorder pages before merging?',
-        'faq2_a': 'Yes, our intuitive interface allows you to drag and drop your files into the precise order you need before combining them.'
+        'faq2_a': 'Yes, our intuitive interface allows you to drag and drop your files into the precise order you need before combining them.',
+        'about_text': 'As the founder of PDFLuxe, I built this local merge tool because I was frustrated by cloud services demanding access to my private documents just to combine two files.'
     },
     'split-pdf.html': {
         'desc_title': 'The Importance of Splitting PDFs',
@@ -16,7 +17,8 @@ TOOLS_DATA = {
         'faq1_q': 'How precise is the splitting process?',
         'faq1_a': 'You have complete control. You can split by individual pages, extract a specific range (e.g., pages 5-10), or divide the document at fixed intervals.',
         'faq2_q': 'Are the extracted pages watermarked?',
-        'faq2_a': 'Absolutely not. PDFLuxe provides a clean extraction process completely free of any intrusive watermarks or artificial restrictions.'
+        'faq2_a': 'Absolutely not. PDFLuxe provides a clean extraction process completely free of any intrusive watermarks or artificial restrictions.',
+        'about_text': 'I created this offline splitting utility because extracting a single page from a confidential legal or financial PDF shouldn\'t require sending the entire document to a remote server.'
     },
     'compress-pdf.html': {
         'desc_title': 'Why Compress Your PDF Files?',
@@ -24,7 +26,8 @@ TOOLS_DATA = {
         'faq1_q': 'How much smaller will my file be?',
         'faq1_a': 'Compression rates vary depending on the original content (especially images), but users typically see a 40% to 80% reduction in file size.',
         'faq2_q': 'Is the compression lossy or lossless?',
-        'faq2_a': 'We use a balanced approach that optimizes image DPI and removes redundant structural data, providing massive size savings while maintaining high visual fidelity.'
+        'faq2_a': 'We use a balanced approach that optimizes image DPI and removes redundant structural data, providing massive size savings while maintaining high visual fidelity.',
+        'about_text': 'My goal with PDFLuxe was to prove that you don\'t need to sacrifice privacy to shrink large files. This compression tool runs entirely in your browser to keep your data yours.'
     },
     'pdf-to-image.html': {
         'desc_title': 'Benefits of Converting PDF to Image',
@@ -32,7 +35,8 @@ TOOLS_DATA = {
         'faq1_q': 'Which image formats are supported?',
         'faq1_a': 'Currently, we support exporting to popular, widely compatible formats including high-resolution PNG and standard JPEG files.',
         'faq2_q': 'Will it convert every page of the document?',
-        'faq2_a': 'Yes, the tool processes the entire document, generating a separate, high-quality image file for every single page in your original PDF.'
+        'faq2_a': 'Yes, the tool processes the entire document, generating a separate, high-quality image file for every single page in your original PDF.',
+        'about_text': 'Converting documents to images is a daily task for designers and students. I built this feature to happen locally so your intellectual property remains secure on your own hard drive.'
     },
     'image-to-pdf.html': {
         'desc_title': 'Why Compile Images into a PDF?',
@@ -40,7 +44,8 @@ TOOLS_DATA = {
         'faq1_q': 'Can I combine different image formats?',
         'faq1_a': 'Yes! You can mix and match JPG, PNG, and other standard image formats. Our tool will automatically process and compile them into one PDF.',
         'faq2_q': 'Are the images compressed during conversion?',
-        'faq2_a': 'We prioritize quality. The tool embeds your images seamlessly without applying aggressive compression, so your visual data remains sharp and clear.'
+        'faq2_a': 'We prioritize quality. The tool embeds your images seamlessly without applying aggressive compression, so your visual data remains sharp and clear.',
+        'about_text': 'I designed this image-to-PDF compiler so users could organize their personal photos and scanned receipts without ever exposing them to third-party data tracking.'
     },
     'scan-to-pdf.html': {
         'desc_title': 'Digitize Your Physical Documents',
@@ -48,7 +53,8 @@ TOOLS_DATA = {
         'faq1_q': 'Does this tool work with mobile cameras?',
         'faq1_a': 'Yes, because PDFLuxe is a Progressive Web App, you can seamlessly use your mobile device\'s camera to capture documents and convert them instantly.',
         'faq2_q': 'Is Optical Character Recognition (OCR) applied?',
-        'faq2_a': 'We are actively developing fully local OCR capabilities. Currently, the tool compiles high-quality photographic scans into secure PDF formats.'
+        'faq2_a': 'We are actively developing fully local OCR capabilities. Currently, the tool compiles high-quality photographic scans into secure PDF formats.',
+        'about_text': 'Digitizing physical documents is essential, but privacy is paramount. I built this scanner tool to ensure your captured data is converted securely without cloud interception.'
     },
     'rotate-pdf.html': {
         'desc_title': 'Correcting Document Orientation',
@@ -56,7 +62,8 @@ TOOLS_DATA = {
         'faq1_q': 'Can I rotate just one specific page?',
         'faq1_a': 'Absolutely. Our interface allows you to target specific pages that were scanned incorrectly without affecting the rest of the correctly oriented document.',
         'faq2_q': 'Are the rotations permanent?',
-        'faq2_a': 'Yes. When you download the processed file, the new orientation is permanently written into the PDF structure, so it opens correctly on any device.'
+        'faq2_a': 'Yes. When you download the processed file, the new orientation is permanently written into the PDF structure, so it opens correctly on any device.',
+        'about_text': 'Fixing a sideways page should be instant. I engineered this local rotation tool to eliminate the annoying upload/download cycles typical of other online PDF editors.'
     },
     'watermark-pdf.html': {
         'desc_title': 'Protect Your Intellectual Property',
@@ -64,7 +71,8 @@ TOOLS_DATA = {
         'faq1_q': 'Can I customize the watermark text?',
         'faq1_a': 'Yes, you can specify exactly what the watermark should say, adjusting its opacity and placement to suit your specific document needs.',
         'faq2_q': 'Can someone easily remove the watermark?',
-        'faq2_a': 'We embed the watermark directly into the content stream of the PDF pages, making it significantly more difficult to remove than simple layered annotations.'
+        'faq2_a': 'We embed the watermark directly into the content stream of the PDF pages, making it significantly more difficult to remove than simple layered annotations.',
+        'about_text': 'Protecting your creative work is critical. I added this watermarking feature to PDFLuxe so you can secure your drafts offline, before they ever touch the internet.'
     },
     'pdf-to-word.html': {
         'desc_title': 'Make Your PDFs Editable Again',
@@ -72,7 +80,8 @@ TOOLS_DATA = {
         'faq1_q': 'Will the formatting be preserved perfectly?',
         'faq1_a': 'We strive to maintain the original layout as closely as possible. However, highly complex designs or vector graphics may require minor manual adjustments in Word.',
         'faq2_q': 'Do I need Microsoft Word installed?',
-        'faq2_a': 'Not to perform the conversion! PDFLuxe generates a standard .docx file that can be opened by Microsoft Word, Google Docs, or LibreOffice later.'
+        'faq2_a': 'Not to perform the conversion! PDFLuxe generates a standard .docx file that can be opened by Microsoft Word, Google Docs, or LibreOffice later.',
+        'about_text': 'Extracting text back into an editable Word format shouldn\'t cost a premium subscription. I developed this client-side converter to democratize access to essential document manipulation.'
     },
     'protect-pdf.html': {
         'desc_title': 'Secure Your Sensitive Files',
@@ -80,7 +89,8 @@ TOOLS_DATA = {
         'faq1_q': 'What type of encryption is used?',
         'faq1_a': 'We utilize industry-standard 128-bit or 256-bit AES encryption, making your document virtually impenetrable without the correct password.',
         'faq2_q': 'Can PDFLuxe recover a lost password?',
-        'faq2_a': 'No. Because we never store your files or passwords on any server, it is impossible for us to recover your document if you forget the password. Please keep it safe!'
+        'faq2_a': 'No. Because we never store your files or passwords on any server, it is impossible for us to recover your document if you forget the password. Please keep it safe!',
+        'about_text': 'When I realized most online password-protectors actually send your unencrypted file to their servers first, I knew I had to build a strictly local, zero-knowledge encryption tool.'
     },
     'unlock-pdf.html': {
         'desc_title': 'Remove Unnecessary Restrictions',
@@ -88,7 +98,8 @@ TOOLS_DATA = {
         'faq1_q': 'Can this tool crack an unknown password?',
         'faq1_a': 'No. PDFLuxe is a productivity tool, not a hacking utility. You must know the correct current password to decrypt and permanently unlock the file.',
         'faq2_q': 'Is the unlocked file exactly the same?',
-        'faq2_a': 'Yes, the structural contents remain completely unchanged. We simply strip the encryption layer, making the file easily accessible for future use.'
+        'faq2_a': 'Yes, the structural contents remain completely unchanged. We simply strip the encryption layer, making the file easily accessible for future use.',
+        'about_text': 'Removing passwords from your own documents shouldn\'t feel like a security risk. This offline decryption utility ensures your sensitive files remain completely under your control.'
     },
     'page-numbers-pdf.html': {
         'desc_title': 'Organize Your Document Pages',
@@ -96,7 +107,8 @@ TOOLS_DATA = {
         'faq1_q': 'Can I choose where the numbers appear?',
         'faq1_a': 'Yes, the tool provides options to position the page numbers in standard locations, such as the bottom center or bottom right of the pages.',
         'faq2_q': 'Will it overwrite existing footers?',
-        'faq2_a': 'The tool adds the numbers as a new layer. While it generally avoids overwriting, we recommend previewing the output if your document already has dense footers.'
+        'faq2_a': 'The tool adds the numbers as a new layer. While it generally avoids overwriting, we recommend previewing the output if your document already has dense footers.',
+        'about_text': 'Adding page numbers is a simple necessity for academic and legal files. I built this tool to process instantly in your browser cache, respecting both your time and your privacy.'
     },
     'organize-pdf.html': {
         'desc_title': 'Take Control of Your Pages',
@@ -104,7 +116,8 @@ TOOLS_DATA = {
         'faq1_q': 'Can I delete multiple pages at once?',
         'faq1_a': 'Yes, you can easily select and remove any unnecessary pages from your document before generating the final, clean PDF.',
         'faq2_q': 'Does reorganizing alter the text?',
-        'faq2_a': 'No, the content of the pages themselves remains entirely untouched. We only modify the structural sequence in which the pages are displayed.'
+        'faq2_a': 'No, the content of the pages themselves remains entirely untouched. We only modify the structural sequence in which the pages are displayed.',
+        'about_text': 'I wanted to provide a visual, drag-and-drop way to rearrange pages that felt as fast as a desktop app. By processing locally, this tool achieves zero latency.'
     },
     'sign-pdf.html': {
         'desc_title': 'Digitally Sign Contracts Instantly',
@@ -112,7 +125,8 @@ TOOLS_DATA = {
         'faq1_q': 'Is this a legally binding digital signature?',
         'faq1_a': 'It functions as a standard electronic signature (e-signature). While suitable for most business agreements, highly regulated industries may require cryptographic certificate-based signatures.',
         'faq2_q': 'Can I save my signature for later?',
-        'faq2_a': 'Because we prioritize absolute privacy and utilize local browser execution, we intentionally do not store your signature data permanently across sessions.'
+        'faq2_a': 'Because we prioritize absolute privacy and utilize local browser execution, we intentionally do not store your signature data permanently across sessions.',
+        'about_text': 'Your signature is your most sensitive piece of identity data. I developed this digital signing tool specifically to ensure your signature never leaves your personal device.'
     },
     'repair-pdf.html': {
         'desc_title': 'Fix Corrupted Document Files',
@@ -120,7 +134,8 @@ TOOLS_DATA = {
         'faq1_q': 'Can every broken PDF be repaired?',
         'faq1_a': 'Unfortunately, no. If the binary data is severely overwritten or truncated, it may be unrecoverable. However, we successfully fix most common structural corruptions.',
         'faq2_q': 'Will I lose any data during repair?',
-        'faq2_a': 'The repair process attempts to salvage all possible data. In some severe cases, partially corrupted pages or specific embedded images might be lost to save the rest of the document.'
+        'faq2_a': 'The repair process attempts to salvage all possible data. In some severe cases, partially corrupted pages or specific embedded images might be lost to save the rest of the document.',
+        'about_text': 'Corrupted files cause massive panic. I created this local repair utility so you can attempt to salvage critical documents instantly, without waiting for massive cloud uploads.'
     },
     'pdf-to-text.html': {
         'desc_title': 'Extract Raw Text Data Easily',
@@ -128,7 +143,8 @@ TOOLS_DATA = {
         'faq1_q': 'Does this work on scanned PDFs?',
         'faq1_a': 'Standard extraction requires the PDF to have a readable text layer. If it is purely a scanned image, it will require OCR processing to generate text.',
         'faq2_q': 'Will it keep my tables aligned?',
-        'faq2_a': 'Raw text (.txt) does not support advanced formatting. While we try to maintain logical paragraph breaks, complex table structures will lose their visual alignment.'
+        'faq2_a': 'Raw text (.txt) does not support advanced formatting. While we try to maintain logical paragraph breaks, complex table structures will lose their visual alignment.',
+        'about_text': 'For developers and researchers, extracting raw data must be fast and secure. I integrated WebAssembly here to rip text from PDFs instantly while maintaining absolute confidentiality.'
     },
     'crop-pdf.html': {
         'desc_title': 'Trim Unwanted Document Margins',
@@ -136,7 +152,8 @@ TOOLS_DATA = {
         'faq1_q': 'Does cropping reduce the file size?',
         'faq1_a': 'Typically, no. Cropping usually just changes the visual "bounding box" of the page rather than deleting the underlying data, so file size remains similar.',
         'faq2_q': 'Can I crop all pages at once?',
-        'faq2_a': 'Yes, you can set a universal crop margin that will be applied consistently across every single page in your document.'
+        'faq2_a': 'Yes, you can set a universal crop margin that will be applied consistently across every single page in your document.',
+        'about_text': 'Trimming document margins shouldn\'t require a heavy desktop application. I designed this visual cropping tool to run entirely in your browser for maximum efficiency and privacy.'
     },
     'pdf-to-excel.html': {
         'desc_title': 'Unlock Data from PDF Tables',
@@ -144,7 +161,8 @@ TOOLS_DATA = {
         'faq1_q': 'Will formulas be generated?',
         'faq1_a': 'No. PDFs only store the visual text, not the underlying logic. We will extract the exact numbers and layout, but you will need to re-add your Excel formulas.',
         'faq2_q': 'Does it work for multi-page tables?',
-        'faq2_a': 'Yes, our extraction process attempts to intelligently parse tables that span across multiple pages, consolidating them into organized spreadsheet tabs.'
+        'faq2_a': 'Yes, our extraction process attempts to intelligently parse tables that span across multiple pages, consolidating them into organized spreadsheet tabs.',
+        'about_text': 'Financial data is the last thing you want to upload to a random server. I built this PDF to Excel extractor to keep your corporate numbers strictly local and secure.'
     },
     'pdf-to-md.html': {
         'desc_title': 'Seamless Markdown Conversion',
@@ -152,7 +170,8 @@ TOOLS_DATA = {
         'faq1_q': 'How does it handle PDF images?',
         'faq1_a': 'Because Markdown is a text-based format, embedded images cannot be directly inserted. The conversion focuses strictly on extracting and structuring the text content.',
         'faq2_q': 'Are bold and italic styles preserved?',
-        'faq2_a': 'Yes, our parser attempts to detect font weights and styles, translating them into standard Markdown asterisks and formatting markers wherever possible.'
+        'faq2_a': 'Yes, our parser attempts to detect font weights and styles, translating them into standard Markdown asterisks and formatting markers wherever possible.',
+        'about_text': 'As a developer myself, I needed a way to securely convert technical PDFs into Markdown for documentation. This local tool ensures proprietary code stays off third-party servers.'
     },
     'redact-pdf.html': {
         'desc_title': 'Permanently Remove Sensitive Data',
@@ -160,7 +179,8 @@ TOOLS_DATA = {
         'faq1_q': 'Is the redacted text completely gone?',
         'faq1_a': 'Yes. We don\'t just cover it up; we surgically remove the specific text strings from the internal binary streams of the PDF file, rendering recovery impossible.',
         'faq2_q': 'Can I search for text to redact?',
-        'faq2_a': 'Currently, redaction is applied by visually selecting the areas you want to scrub, ensuring you have precise manual control over what is removed.'
+        'faq2_a': 'Currently, redaction is applied by visually selecting the areas you want to scrub, ensuring you have precise manual control over what is removed.',
+        'about_text': 'True redaction means destroying data permanently. I engineered this tool to surgically scrub text from your document offline, guaranteeing absolute security for classified information.'
     },
     'metadata-pdf.html': {
         'desc_title': 'Manage Hidden Document Properties',
@@ -168,7 +188,8 @@ TOOLS_DATA = {
         'faq1_q': 'What specific metadata can I edit?',
         'faq1_a': 'You can view and modify core properties including the Document Title, Author Name, Subject, and embedded Keywords.',
         'faq2_q': 'Can I just delete all metadata?',
-        'faq2_a': 'Yes, you can simply clear the fields in our interface, and we will generate a clean PDF stripped of that specific tracking information.'
+        'faq2_a': 'Yes, you can simply clear the fields in our interface, and we will generate a clean PDF stripped of that specific tracking information.',
+        'about_text': 'Hidden metadata can leak your identity. I built this scrubber to give you complete control over your digital footprint before you share documents publicly.'
     },
     'compare-pdf.html': {
         'desc_title': 'Spot Differences Instantly',
@@ -176,7 +197,8 @@ TOOLS_DATA = {
         'faq1_q': 'Does it compare formatting or just text?',
         'faq1_a': 'The tool primarily focuses on textual differences, highlighting where words or paragraphs have been added, removed, or altered.',
         'faq2_q': 'Is the comparison process fast?',
-        'faq2_a': 'Incredibly fast. By utilizing your device\'s local CPU, the text extraction and diffing algorithms run almost instantaneously, even on large files.'
+        'faq2_a': 'Incredibly fast. By utilizing your device\'s local CPU, the text extraction and diffing algorithms run almost instantaneously, even on large files.',
+        'about_text': 'Comparing contracts line-by-line is tedious. I developed this local diffing tool so legal professionals can analyze sensitive agreements without risking a data breach.'
     },
     'batch-pdf.html': {
         'desc_title': 'Automate High-Volume Tasks',
@@ -184,7 +206,8 @@ TOOLS_DATA = {
         'faq1_q': 'Is there a limit to how many files I can batch?',
         'faq1_a': 'There are no artificial limits. The only restriction is the available RAM and processing power of your specific device.',
         'faq2_q': 'Do all files need to have the exact same operation?',
-        'faq2_a': 'Yes, the batch tool is designed to apply a uniform operation (like compression or grayscale conversion) across the entire queue of selected files.'
+        'faq2_a': 'Yes, the batch tool is designed to apply a uniform operation (like compression or grayscale conversion) across the entire queue of selected files.',
+        'about_text': 'Processing dozens of files one by one is agonizing. I created this batch processor to leverage your local CPU, completely bypassing the massive upload bottlenecks of cloud alternatives.'
     },
     'grayscale-pdf.html': {
         'desc_title': 'Save Ink and Storage Space',
@@ -192,7 +215,8 @@ TOOLS_DATA = {
         'faq1_q': 'Will grayscale conversion ruin my photos?',
         'faq1_a': 'Not at all. The tool carefully calculates luminance values, translating vibrant colors into rich, distinct shades of gray, preserving visual details perfectly.',
         'faq2_q': 'How much smaller does the file become?',
-        'faq2_a': 'Stripping complex color profiles often results in a moderate file size reduction, though it depends heavily on the amount of imagery in the document.'
+        'faq2_a': 'Stripping complex color profiles often results in a moderate file size reduction, though it depends heavily on the amount of imagery in the document.',
+        'about_text': 'Saving printer ink shouldn\'t cost you a monthly subscription. This offline grayscale converter strips color data efficiently while respecting your document\'s privacy.'
     },
     'micro-pdf.html': {
         'desc_title': 'Extreme PDF Optimization',
@@ -200,7 +224,8 @@ TOOLS_DATA = {
         'faq1_q': 'Will this significantly degrade image quality?',
         'faq1_a': 'Yes, extreme optimization requires trade-offs. Images will be noticeably downsampled to achieve the absolute minimum file size possible.',
         'faq2_q': 'Is this different from the standard Compress tool?',
-        'faq2_a': 'Yes. The standard tool aims for a balance of size and visual quality. The Micro tool prioritizes maximum file size reduction above all else.'
+        'faq2_a': 'Yes. The standard tool aims for a balance of size and visual quality. The Micro tool prioritizes maximum file size reduction above all else.',
+        'about_text': 'Sometimes standard compression isn\'t enough to meet strict upload limits. I designed this extreme downsampling tool to crush file sizes locally when every kilobyte matters.'
     },
     'ai-pdf.html': {
         'desc_title': 'Chat with Your Documents',
@@ -208,7 +233,8 @@ TOOLS_DATA = {
         'faq1_q': 'Is the whole document sent to the AI?',
         'faq1_a': 'To provide accurate answers, the relevant extracted text from your document is securely transmitted to our trusted AI provider APIs.',
         'faq2_q': 'Can it read charts and graphs?',
-        'faq2_a': 'Currently, the AI excels at interpreting and summarizing textual data. Complex visual charts or embedded images may not be fully analyzed by the text engine.'
+        'faq2_a': 'Currently, the AI excels at interpreting and summarizing textual data. Complex visual charts or embedded images may not be fully analyzed by the text engine.',
+        'about_text': 'While interacting with AI requires sending text to an API, I built this specific integration so the heavy lifting of PDF parsing still happens locally, minimizing data exposure.'
     }
 }
 
@@ -220,11 +246,8 @@ def process_file(filename, data):
     with open(filename, 'r', encoding='utf-8') as f:
         content = f.read()
 
-    # The block we want to replace is <article class="seo-article"> ... </article>
-    # We will use regex to find this block.
     pattern = re.compile(r'<article class="seo-article">.*?</article>', re.DOTALL)
     
-    # Create the new article content
     new_article = f"""<article class="seo-article">
             <style>
                 .seo-article h2, .seo-article h3, .seo-card h1 {{
@@ -247,12 +270,11 @@ def process_file(filename, data):
             <div class="trust-section" style="margin-top: 4rem; padding: 3rem 2rem; background: rgba(212, 175, 55, 0.05); border: 2px solid rgba(212, 175, 55, 0.3); border-radius: 12px;">
                 <h2 style="text-align: center; margin-top: 0; color: var(--gold); border-bottom: none; font-size: 2.2rem;">About PDFLuxe</h2>
                 
-                <p style="text-align: center; font-size: 1.25rem; font-weight: 500; font-style: italic; color: #e2e8f0; margin-bottom: 2rem;">
-                    "We built PDFLuxe to make PDF tools simple, private, and accessible to everyone."
+                <p style="text-align: center; font-size: 1.15rem; font-style: italic; color: #e2e8f0; margin-bottom: 1.5rem; line-height: 1.6;">
+                    "{data['about_text']}"
                 </p>
                 
-                <p>At PDFLuxe, we noticed that too many platforms force users to trade their privacy for convenience, so we created a solution where you never have to choose between the two. Our goal is to bring you professional-grade tools with zero friction and absolute privacy. We believe that powerful document management doesn't require compromising your data privacy or paying expensive monthly subscriptions.</p>
-                <div style="margin-top: 2rem; text-align: right; font-style: italic; color: var(--gold);">
+                <div style="text-align: right; font-style: italic; color: var(--gold);">
                     <strong>— Pranay Yegireddy</strong><br>
                     <span style="font-size: 0.9em; opacity: 0.8;">Founder &amp; Creator of PDFLuxe</span>
                 </div>
@@ -268,8 +290,6 @@ def process_file(filename, data):
         print(f"Could not find <article class=\"seo-article\"> in {filename}")
 
 def main():
-    # Make sure we are in the correct directory
-    # The script should be run from 'c:\\Users\\Pranay\\All website related files\\PDF Website'
     for filename, data in TOOLS_DATA.items():
         process_file(filename, data)
         
